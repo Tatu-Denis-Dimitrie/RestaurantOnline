@@ -1,0 +1,14 @@
+﻿<Application x:Class="RestaurantOnline.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:RestaurantOnline"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters">
+    <Application.Resources>
+         <ResourceDictionary>
+             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+             <converters:StareToColorConverter x:Key="StareToColorConverter"/>
+             <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+         </ResourceDictionary>
+    </Application.Resources>
+</Application>
