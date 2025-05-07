@@ -3,25 +3,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantOnline.Models
 {
-    public class FotografiePreparat : BaseModel
+    public class DishImage : BaseModel
     {
-        private int _idFoto;
-        private int _idPreparate;
+        private int _idImage;
+        private int _idDish;
         private string _url = string.Empty;
-        private Preparat? _preparat;
+        private Dish? _dish;
 
         [Key]
         public int IdFoto
         {
-            get => _idFoto;
-            set => SetField(ref _idFoto, value);
+            get => _idImage;
+            set => SetField(ref _idImage, value);
         }
 
-        [Required]
         public int IdPreparate
         {
-            get => _idPreparate;
-            set => SetField(ref _idPreparate, value);
+            get => _idDish;
+            set => SetField(ref _idDish, value);
         }
 
         [Required]
@@ -33,10 +32,10 @@ namespace RestaurantOnline.Models
         }
 
         [ForeignKey("IdPreparate")]
-        public virtual Preparat? Preparat
+        public virtual Dish? Preparat
         {
-            get => _preparat;
-            set => SetField(ref _preparat, value);
+            get => _dish;
+            set => SetField(ref _dish, value);
         }
     }
 } 

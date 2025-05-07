@@ -9,9 +9,9 @@ namespace RestaurantOnline.Views
     /// <summary>
     /// Interaction logic for PreparateView.xaml
     /// </summary>
-    public partial class PreparateView : UserControl
+    public partial class DishView : UserControl
     {
-        public PreparateView()
+        public DishView()
         {
             InitializeComponent();
         }
@@ -19,7 +19,7 @@ namespace RestaurantOnline.Views
         private void Image_ImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
             Image img = sender as Image;
-            Debug.WriteLine($"Eroare la încărcarea imaginii: {e.ErrorException.Message}");
+            Debug.WriteLine($"Eroare la incarcarea imaginii: {e.ErrorException.Message}");
             if (img != null && img.Source is BitmapImage bitmapImage)
             {
                 Debug.WriteLine($"Sursa imaginii: {bitmapImage.UriSource}");

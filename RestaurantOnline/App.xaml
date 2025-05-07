@@ -9,6 +9,10 @@
              <converters:StareToColorConverter x:Key="StareToColorConverter"/>
              <converters:ImagePathConverter x:Key="ImagePathConverter"/>
              <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+             <converters:BoolToTextConverter x:Key="BoolToTextConverter"/>
+             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+             <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+             <converters:NullToTextConverter x:Key="NullToTextConverter"/>
          </ResourceDictionary>
     </Application.Resources>
 </Application>

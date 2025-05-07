@@ -6,18 +6,18 @@ namespace RestaurantOnline.ViewModels
 {
     public class UtilizatoriViewModel : ViewModelBase
     {
-        private readonly UtilizatorService _utilizatorService;
-        private ObservableCollection<Utilizator> _utilizatori;
+        private readonly UserS _utilizatorService;
+        private ObservableCollection<User> _utilizatori;
 
-        public UtilizatoriViewModel(UtilizatorService utilizatorService)
+        public UtilizatoriViewModel(UserS utilizatorService)
         {
             _utilizatorService = utilizatorService;
-            _utilizatori = new ObservableCollection<Utilizator>();
+            _utilizatori = new ObservableCollection<User>();
             
             LoadDataAsync();
         }
 
-        public ObservableCollection<Utilizator> Utilizatori
+        public ObservableCollection<User> Utilizatori
         {
             get => _utilizatori;
             set => SetProperty(ref _utilizatori, value);

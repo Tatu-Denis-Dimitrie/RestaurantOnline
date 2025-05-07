@@ -3,11 +3,11 @@ using System.Windows.Controls;
 namespace RestaurantOnline.Views
 {
     /// <summary>
-    /// Interaction logic for UtilizatoriView.xaml
+    /// Interaction logic for ComenziView.xaml
     /// </summary>
-    public partial class UtilizatoriView : UserControl
+    public partial class OrderView : UserControl
     {
-        public UtilizatoriView()
+        public OrderView()
         {
             InitializeComponent();
         }

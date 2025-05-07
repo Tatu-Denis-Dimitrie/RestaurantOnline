@@ -1,0 +1,104 @@
+<Window x:Class="RestaurantOnline.Views.DishDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RestaurantOnline.Views"
+        xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+        mc:Ignorable="d"
+        Title="Detalii Preparat" Height="450" Width="600"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Antet cu numele preparatului si categoria -->
+        <StackPanel Grid.Row="0">
+            <TextBlock x:Name="NumePreparat" Text="" 
+                       FontSize="24" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock x:Name="CategoriePreparat" Text="" 
+                       FontSize="14" Foreground="#666" Margin="0,0,0,10"/>
+        </StackPanel>
+        
+        <!-- Detalii principale -->
+        <Grid Grid.Row="1" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Imagine preparat -->
+            <Border Grid.Column="0" Background="#F8F8F8" CornerRadius="8" 
+                    Margin="0,0,20,0" Width="200" Height="150">
+                <Image x:Name="ImaginePreparatControl" Source="" 
+                       Stretch="Uniform" Margin="10"/>
+            </Border>
+            
+            <!-- Informatii principale -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Pret -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Pret:" 
+                           FontWeight="SemiBold" Margin="0,5"/>
+                <TextBlock x:Name="PretPreparat" Grid.Row="0" Grid.Column="1" 
+                           Text="" Margin="10,5"/>
+                
+                <!-- Cantitate portie -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Cantitate portie:" 
+                           FontWeight="SemiBold" Margin="0,5"/>
+                <TextBlock x:Name="CantitatePortie" Grid.Row="1" Grid.Column="1" 
+                           Text="" Margin="10,5"/>
+                
+                <!-- Cantitate totala disponibila -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Cantitate disponibila:" 
+                           FontWeight="SemiBold" Margin="0,5"/>
+                <TextBlock x:Name="CantitateDisponibila" Grid.Row="2" Grid.Column="1" 
+                           Text="" Margin="10,5"/>
+            </Grid>
+        </Grid>
+        
+        <!-- Alergeni -->
+        <GroupBox Grid.Row="2" Header="Alergeni" Margin="0,10">
+            <ItemsControl x:Name="AlergeniListControl" Margin="5">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#FFF9E9" BorderBrush="#FFE9C5" BorderThickness="1" 
+                                CornerRadius="4" Margin="0,0,10,10" Padding="10,5">
+                            <TextBlock Text="{Binding Nume}" FontSize="12"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </GroupBox>
+        
+        <!-- Buton inchidere -->
+        <Button Grid.Row="3" Content="inchide" 
+                Width="100" Height="30" Margin="0,15,0,0" 
+                Click="CloseButton_Click" HorizontalAlignment="Right"/>
+    </Grid>
+</Window> 

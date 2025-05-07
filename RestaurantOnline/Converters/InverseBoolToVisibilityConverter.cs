@@ -5,15 +5,15 @@ using System.Windows.Data;
 
 namespace RestaurantOnline.Converters
 {
-    public class CountToVisibilityConverter : IValueConverter
+    public class InverseBoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int count)
+            if (value is bool boolValue)
             {
-                return count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                return boolValue ? Visibility.Collapsed : Visibility.Visible;
             }
-            return Visibility.Collapsed;
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

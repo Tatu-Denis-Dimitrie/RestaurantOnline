@@ -29,4 +29,22 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\AuthView.xaml.cs">
+      <DependentUpon>AuthView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\DishDetailsView.xaml.cs">
+      <DependentUpon>DishDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\OrderView.xaml.cs">
+      <DependentUpon>OrderView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\DishView.xaml.cs">
+      <DependentUpon>DishView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\UsersView.xaml.cs">
+      <DependentUpon>UsersView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

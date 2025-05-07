@@ -1,8 +1,8 @@
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
 namespace RestaurantOnline.Converters
 {
@@ -10,49 +10,38 @@ namespace RestaurantOnline.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return null;
-
-            string imagePath = value.ToString();
-
-            if (string.IsNullOrEmpty(imagePath))
-                return null;
-
-            Debug.WriteLine($"Cale imagine originală: {imagePath}");
-
-            if (imagePath.StartsWith("/"))
-                imagePath = imagePath.Substring(1);
-
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string fullPath = Path.Combine(baseDirectory, imagePath);
-            
-            Debug.WriteLine($"Cale completă: {fullPath}");
-            Debug.WriteLine($"Fișierul există: {File.Exists(fullPath)}");
-
-            if (!File.Exists(fullPath))
+            if (value is string imagePath && !string.IsNullOrEmpty(imagePath))
             {
-                string projectDir = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
-                string projectPath = Path.Combine(projectDir, imagePath);
-                
-                Debug.WriteLine($"Cale alternativă în directorul de proiect: {projectPath}");
-                Debug.WriteLine($"Fișierul există: {File.Exists(projectPath)}");
-                
-                if (File.Exists(projectPath))
-                    return projectPath;
+                try
+                {
+                    // Verifica daca calea este absoluta sau relativa
+                    string fullPath = imagePath;
+                    if (!Path.IsPathRooted(imagePath))
+                    {
+                        // Calea este relativa, adauga directorul aplicatiei
+                        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                        fullPath = Path.Combine(baseDir, imagePath);
+                    }
 
-                string altPath = Path.Combine(baseDirectory, "Imagini", Path.GetFileName(imagePath));
-                Debug.WriteLine($"Cale alternativă în /Imagini: {altPath}");
-                Debug.WriteLine($"Fișierul există: {File.Exists(altPath)}");
-                
-                if (File.Exists(altPath))
-                    return altPath;
-            }
-            else
+                    // Verifica daca fisierul exista
+                    if (File.Exists(fullPath))
             {
-                return fullPath;
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.UriSource = new Uri(fullPath);
+                        image.EndInit();
+                        return image;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Eroare la incarcarea imaginii: {ex.Message}");
+                }
             }
 
-            return imagePath;
+            // Returneaza o imagine implicita sau null
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

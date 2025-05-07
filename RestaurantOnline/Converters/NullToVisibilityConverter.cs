@@ -9,7 +9,13 @@ namespace RestaurantOnline.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null ? Visibility.Visible : Visibility.Collapsed;
+            bool invert = parameter is string paramStr && paramStr == "invert";
+            bool isNull = value == null;
+            
+            if (invert)
+                return isNull ? Visibility.Visible : Visibility.Collapsed;
+            else
+                return isNull ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

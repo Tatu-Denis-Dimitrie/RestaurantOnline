@@ -27,11 +27,11 @@ namespace RestaurantOnline
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            // Afișăm un mesaj de eroare utilizatorului
-            MessageBox.Show($"A apărut o eroare neașteptată: {e.Exception.Message}\n\nDetalii: {e.Exception.StackTrace}", 
+            // Afisam un mesaj de eroare utilizatorului
+            MessageBox.Show($"A aparut o eroare neasteptata: {e.Exception.Message}\n\nDetalii: {e.Exception.StackTrace}", 
                 "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             
-            // Marcăm excepția ca tratată pentru a preveni închiderea aplicației
+            // Marcam exceptia ca tratata pentru a preveni inchiderea aplicatiei
             e.Handled = true;
         }
 
@@ -39,43 +39,44 @@ namespace RestaurantOnline
         {
             try
             {
-                // Configurare DbContext cu setări pentru a permite operațiuni concurente
+                // Configurare DbContext - schimbat in ServiceLifetime.Scoped
                 services.AddDbContext<RestaurantDbContext>(options =>
                 {
                     options.UseSqlServer("Server=DESKTOP-4MN145N;Database=RestaurantDB;Trusted_Connection=True;TrustServerCertificate=True;");
-                    
-                    // Permite accesul simultan la context
-                    options.EnableSensitiveDataLogging(true); // Pentru debugging
-                    
-                    // Configurăm context-ul pentru a nu urmări modificările entităților,
-                    // ceea ce îl face mai potrivit pentru operațiuni de doar citire
+                    options.EnableSensitiveDataLogging(true);
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                }, ServiceLifetime.Transient); // Folosim Transient în loc de Scoped pentru a evita refolosirea aceluiași context
+                }, ServiceLifetime.Scoped);
 
-                // Servicii pentru entități
-                services.AddTransient<IRestaurantDataService<Preparat>, PreparatService>();
-                services.AddTransient<IRestaurantDataService<Categorie>, CategorieService>();
-                services.AddTransient<IRestaurantDataService<Alergen>, RestaurantDataService<Alergen>>();
-                services.AddTransient<IRestaurantDataService<Meniu>, RestaurantDataService<Meniu>>();
-                services.AddTransient<IRestaurantDataService<Utilizator>, UtilizatorService>();
-                services.AddTransient<IRestaurantDataService<Comanda>, ComandaService>();
-                services.AddTransient<IRestaurantDataService<Setare>, RestaurantDataService<Setare>>();
+                // Servicii pentru entitati - schimbat din Singleton in Scoped
+                services.AddScoped<IRestaurantS<Dish>, DishS>();
+                services.AddScoped<IRestaurantS<Category>, CategoryS>();
+                services.AddScoped<IRestaurantS<Allergen>, RestaurantDataS<Allergen>>();
+                services.AddScoped<IRestaurantS<Menu>, RestaurantDataS<Menu>>();
+                services.AddScoped<IRestaurantS<User>, UserS>();
+                services.AddScoped<IRestaurantS<Order>, OrderS>();
+                services.AddScoped<IRestaurantS<Settingse>, RestaurantDataS<Settingse>>();
 
-                // Servicii specializate
-                services.AddTransient<PreparatService>();
-                services.AddTransient<CategorieService>();
-                services.AddTransient<ComandaService>();
-                services.AddTransient<UtilizatorService>();
+                // Servicii specializate - schimbat din Singleton in Scoped
+                services.AddScoped<DishS>();
+                services.AddScoped<CategoryS>();
+                services.AddScoped<OrderS>();
+                services.AddScoped<UserS>();
 
-                // ViewModels
-                services.AddTransient<MainViewModel>();
+                // ViewModels - cream factory pattern pentru ViewModel-uri
+                services.AddTransient<MainViewModel>(provider => {
+                    var preparatService = provider.GetRequiredService<DishS>();
+                    var categorieService = provider.GetRequiredService<CategoryS>();
+                    var utilizatorService = provider.GetRequiredService<UserS>();
+                    var comandaService = provider.GetRequiredService<OrderS>();
+                    return new MainViewModel(preparatService, categorieService, utilizatorService, comandaService);
+                });
 
-                // Vizualizări
+                // Vizualizari
                 services.AddSingleton<MainWindow>();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Eroare la configurarea serviciilor: {ex.Message}", "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Eroare la configurarea serviciilor: {ex.Message}\n\nDetalii: {ex.StackTrace}", "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -84,19 +85,15 @@ namespace RestaurantOnline
             try
             {
                 base.OnStartup(e);
-                var mainWindow = serviceProvider.GetService<MainWindow>();
-                mainWindow?.Show();
                 
-                if (mainWindow == null)
-                {
-                    MessageBox.Show("Nu s-a putut crea fereastra principală. Verificați conexiunea la baza de date.",
-                        "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Shutdown();
-                }
+                var mainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+                var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+                mainWindow.DataContext = mainViewModel;
+                mainWindow.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Eroare la pornirea aplicației: {ex.Message}", "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Eroare la pornirea aplicatiei: {ex.Message}\n\nDetalii: {ex.StackTrace}", "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
             }
         }

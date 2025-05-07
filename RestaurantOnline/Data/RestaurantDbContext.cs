@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RestaurantOnline.Models;
 
 namespace RestaurantOnline.Data
@@ -8,136 +8,126 @@ namespace RestaurantOnline.Data
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options)
             : base(options)
         {
+            // Setam comportamentul de tracking implicit la NoTracking pentru toate interogarile
+            ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public DbSet<Categorie> Categorii { get; set; }
-        public DbSet<Alergen> Alergeni { get; set; }
-        public DbSet<Preparat> Preparate { get; set; }
-        public DbSet<FotografiePreparat> FotografiiPreparate { get; set; }
-        public DbSet<PreparatAlergen> PreparatAlergeni { get; set; }
-        public DbSet<Meniu> Meniuri { get; set; }
-        public DbSet<MeniuPreparat> MeniuPreparate { get; set; }
-        public DbSet<Utilizator> Utilizatori { get; set; }
-        public DbSet<Comanda> Comenzi { get; set; }
-        public DbSet<ComandaPreparat> ComandaPreparate { get; set; }
-        public DbSet<Setare> Setari { get; set; }
+        public DbSet<Dish> Dishes { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Allergen> Alergens { get; set; }
+        public DbSet<DishAllergens> DishAlergens { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDish> OrderDish { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<MenuDish> MenusDish { get; set; }
+        public DbSet<DishImage> DishImage { get; set; }
+        public DbSet<Settingse> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurare pentru chei primare compuse
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasKey(pa => new { pa.IdPreparate, pa.IdAlergen });
-
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasKey(mp => new { mp.IdMeniu, mp.IdPreparate });
-
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasKey(cp => new { cp.IdComanda, cp.IdPreparate });
-
-            // Configurare relații many-to-many
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasOne(pa => pa.Preparat)
-                .WithMany(p => p.PreparatAlergeni)
-                .HasForeignKey(pa => pa.IdPreparate)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasOne(pa => pa.Alergen)
-                .WithMany(a => a.PreparatAlergeni)
-                .HasForeignKey(pa => pa.IdAlergen)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasOne(mp => mp.Meniu)
-                .WithMany(m => m.MeniuPreparate)
-                .HasForeignKey(mp => mp.IdMeniu)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasOne(mp => mp.Preparat)
-                .WithMany(p => p.MeniuPreparate)
-                .HasForeignKey(mp => mp.IdPreparate)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasOne(cp => cp.Comanda)
-                .WithMany(c => c.ComandaPreparate)
-                .HasForeignKey(cp => cp.IdComanda)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasOne(cp => cp.Preparat)
-                .WithMany()
-                .HasForeignKey(cp => cp.IdPreparate)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Alte relații
-            modelBuilder.Entity<Preparat>()
+            // Configurare relatii si tabeluri
+            
+            // Configurare pentru Categoria
+            modelBuilder.Entity<Category>()
+                .ToTable("Categorii");
+            
+            // Configurare pentru Preparat
+            modelBuilder.Entity<Dish>()
+                .ToTable("Preparate");
+            
+            modelBuilder.Entity<Dish>()
                 .HasOne(p => p.Categorie)
-                .WithMany(c => c.Preparate)
+                .WithMany(c => c.Dishes)
                 .HasForeignKey(p => p.IdCategorie)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Meniu>()
-                .HasOne(m => m.Categorie)
-                .WithMany(c => c.Meniuri)
-                .HasForeignKey(m => m.IdCategorie)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<FotografiePreparat>()
+                .IsRequired();
+            
+            // Configurare pentru FotografiePreparat
+            modelBuilder.Entity<DishImage>()
+                .ToTable("FotografiiPreparate");
+            
+            modelBuilder.Entity<DishImage>()
                 .HasOne(f => f.Preparat)
                 .WithMany(p => p.Fotografii)
-                .HasForeignKey(f => f.IdPreparate)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(f => f.IdPreparate);
+            
+            // Configurare pentru Alergen
+            modelBuilder.Entity<Allergen>()
+                .ToTable("Alergeni");
+            
+            // Configurare pentru PreparatAlergen (many-to-many)
+            modelBuilder.Entity<DishAllergens>()
+                .ToTable("PreparatAlergen");
+            
+            modelBuilder.Entity<DishAllergens>()
+                .HasKey(pa => new { pa.IdPreparate, pa.IdAlergen });
 
-            modelBuilder.Entity<Comanda>()
+            modelBuilder.Entity<DishAllergens>()
+                .HasOne(pa => pa.Preparat)
+                .WithMany(p => p.PreparatAlergeni)
+                .HasForeignKey(pa => pa.IdPreparate);
+
+            modelBuilder.Entity<DishAllergens>()
+                .HasOne(pa => pa.Alergen)
+                .WithMany(a => a.DishAllergens)
+                .HasForeignKey(pa => pa.IdAlergen);
+            
+            // Configurare pentru Meniu
+            modelBuilder.Entity<Menu>()
+                .ToTable("Meniuri");
+            
+            // Configurare pentru MeniuPreparat (many-to-many)
+            modelBuilder.Entity<MenuDish>()
+                .ToTable("MeniuPreparat");
+            
+            modelBuilder.Entity<MenuDish>()
+                .HasKey(mp => new { mp.IdMeniu, mp.IdPreparate });
+
+            modelBuilder.Entity<MenuDish>()
+                .HasOne(mp => mp.Meniu)
+                .WithMany(m => m.MeniuPreparate)
+                .HasForeignKey(mp => mp.IdMeniu);
+
+            modelBuilder.Entity<MenuDish>()
+                .HasOne(mp => mp.Preparat)
+                .WithMany(p => p.MeniuPreparate)
+                .HasForeignKey(mp => mp.IdPreparate);
+            
+            // Configurare pentru Utilizator
+            modelBuilder.Entity<User>()
+                .ToTable("Utilizatori");
+            
+            // Configurare pentru Comanda
+            modelBuilder.Entity<Order>()
+                .ToTable("Comenzi");
+            
+            modelBuilder.Entity<Order>()
                 .HasOne(c => c.Utilizator)
                 .WithMany(u => u.Comenzi)
-                .HasForeignKey(c => c.IdUtilizator)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(c => c.IdUtilizator);
+            
+            // Configurare pentru ComandaPreparat (many-to-many)
+            modelBuilder.Entity<OrderDish>()
+                .ToTable("ComandaPreparat");
+            
+            modelBuilder.Entity<OrderDish>()
+                .HasKey(cp => new { cp.IdComanda, cp.IdPreparate });
 
-            // Convertirea enum-ului StareComanda la string
-            modelBuilder.Entity<Comanda>()
-                .Property(c => c.Stare)
-                .HasConversion<string>();
+            modelBuilder.Entity<OrderDish>()
+                .HasOne(cp => cp.Comanda)
+                .WithMany(c => c.ComandaPreparate)
+                .HasForeignKey(cp => cp.IdComanda);
 
-            // Configurarea preciziei pentru valorile monetare
-            modelBuilder.Entity<Preparat>()
-                .Property(p => p.Pret)
-                .HasColumnType("decimal(10,2)");
+            modelBuilder.Entity<OrderDish>()
+                .HasOne(cp => cp.Preparat)
+                .WithMany()
+                .HasForeignKey(cp => cp.IdPreparate);
 
-            modelBuilder.Entity<Comanda>()
-                .Property(c => c.ValoareFinala)
-                .HasColumnType("decimal(10,2)");
-
-            modelBuilder.Entity<Comanda>()
-                .Property(c => c.Transport)
-                .HasColumnType("decimal(10,2)");
-
-            // Email unic pentru utilizatori
-            modelBuilder.Entity<Utilizator>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            // Nume unic pentru setări
-            modelBuilder.Entity<Setare>()
-                .HasIndex(s => s.Nume)
-                .IsUnique();
-
-            // Configurare tabel pentru entități
-            modelBuilder.Entity<Categorie>().ToTable("Categorii");
-            modelBuilder.Entity<Alergen>().ToTable("Alergeni");
-            modelBuilder.Entity<Preparat>().ToTable("Preparate");
-            modelBuilder.Entity<FotografiePreparat>().ToTable("FotografiiPreparate");
-            modelBuilder.Entity<PreparatAlergen>().ToTable("PreparatAlergen");
-            modelBuilder.Entity<Meniu>().ToTable("Meniuri");
-            modelBuilder.Entity<MeniuPreparat>().ToTable("MeniuPreparat");
-            modelBuilder.Entity<Utilizator>().ToTable("Utilizatori");
-            modelBuilder.Entity<Comanda>().ToTable("Comenzi");
-            modelBuilder.Entity<ComandaPreparat>().ToTable("ComandaPreparat");
-            modelBuilder.Entity<Setare>().ToTable("Setari");
+            // Configurare pentru Setare
+            modelBuilder.Entity<Settingse>()
+                .ToTable("Setari");
         }
     }
 } 

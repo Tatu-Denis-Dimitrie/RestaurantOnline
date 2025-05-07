@@ -10,14 +10,17 @@
         Title="Restaurant Online - Gestiune" Height="650" Width="1000">
     
     <Window.Resources>
-        <DataTemplate DataType="{x:Type viewmodels:PreparateViewModel}">
-            <views:PreparateView />
+        <DataTemplate DataType="{x:Type viewmodels:DishViewModel}">
+            <views:DishView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:UtilizatoriViewModel}">
-            <views:UtilizatoriView />
+            <views:UsersView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:ComenziViewModel}">
-            <views:ComenziView />
+            <views:OrderView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AuthVM}">
+            <views:AuthView />
         </DataTemplate>
     </Window.Resources>
     
@@ -28,13 +31,28 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="#2c3e50" Height="50">
-            <StackPanel Orientation="Horizontal" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Butoane de navigare -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10">
                 <TextBlock Text="RESTAURANT ONLINE" FontSize="18" Foreground="White" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                <!-- Butoane de navigare activate -->
                 <Button Content="Preparate" Width="100" Margin="5,0" Command="{Binding NavigateToPreparateCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
                 <Button Content="Utilizatori" Width="100" Margin="5,0" Command="{Binding NavigateToUtilizatoriCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
                 <Button Content="Comenzi" Width="100" Margin="5,0" Command="{Binding NavigateToComenziCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
             </StackPanel>
+
+                <!-- Buton Login/Sign Up -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10">
+                    <Button Content="{Binding UtilizatorCurent, Converter={StaticResource NullToTextConverter}, ConverterParameter='Login|Contul meu'}" 
+                            Width="120" Margin="5,0" Command="{Binding NavigateToAutentificareCommand}" 
+                            Foreground="White" Background="#e74c3c" BorderBrush="#e74c3c"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>

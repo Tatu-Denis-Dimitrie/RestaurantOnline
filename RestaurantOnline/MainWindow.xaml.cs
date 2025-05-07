@@ -19,28 +19,9 @@ namespace RestaurantOnline
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly PreparatService _preparatService;
-        private readonly CategorieService _categorieService;
-        private readonly UtilizatorService _utilizatorService;
-        private readonly ComandaService _comandaService;
-
-        public MainWindow(
-            PreparatService preparatService,
-            CategorieService categorieService,
-            UtilizatorService utilizatorService,
-            ComandaService comandaService)
+        public MainWindow()
         {
-            _preparatService = preparatService;
-            _categorieService = categorieService;
-            _utilizatorService = utilizatorService;
-            _comandaService = comandaService;
-
             InitializeComponent();
-            DataContext = new MainViewModel(
-                _preparatService,
-                _categorieService,
-                _utilizatorService,
-                _comandaService);
         }
     }
 }
