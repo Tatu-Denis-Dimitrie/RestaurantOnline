@@ -25,7 +25,7 @@
             
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Expander Header="{Binding Stare, StringFormat='Comanda {0}'}" 
+                    <Expander Header="{Binding Status, StringFormat='Comanda {0}'}" 
                               Padding="5" Margin="0,5" IsExpanded="False">
                         <Grid Margin="10,5">
                             <Grid.RowDefinitions>
@@ -44,49 +44,49 @@
                             <!-- ID Comanda -->
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="ID:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IdComanda}" 
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding OrderId}" 
                                        Margin="0,2"/>
 
                             <!-- Data Comanda -->
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Data:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" 
-                                       Text="{Binding DataComanda, StringFormat=dd/MM/yyyy HH:mm}" 
+                                       Text="{Binding OrderDate, StringFormat=dd/MM/yyyy HH:mm}" 
                                        Margin="0,2"/>
 
                             <!-- Client -->
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Client:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" 
-                                       Text="{Binding Utilizator.NumeComplet}" 
+                                       Text="{Binding User.NumeComplet}" 
                                        Margin="0,2"/>
 
                             <!-- Stare -->
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Stare:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Stare}" 
-                                       Foreground="{Binding Stare, Converter={StaticResource StareToColorConverter}}" 
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Status}" 
+                                       Foreground="{Binding Status, Converter={StaticResource StareToColorConverter}}" 
                                        FontWeight="SemiBold" Margin="0,2"/>
 
                             <!-- Valoare -->
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Valoare:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" 
-                                       Text="{Binding ValoareFinala, StringFormat={}{0:C}}" 
+                                       Text="{Binding FinalAmount, StringFormat={}{0:C}}" 
                                        Margin="0,2"/>
 
                             <!-- Produse -->
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Produse:" 
                                        FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,2"/>
                             <ItemsControl Grid.Row="5" Grid.Column="1" 
-                                         ItemsSource="{Binding ComandaPreparate}" Margin="0,2">
+                                         ItemsSource="{Binding OrderDishes}" Margin="0,2">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                                            <TextBlock Text="{Binding Cantitate}" Margin="0,0,5,0"/>
-                                            <TextBlock Text="x" Margin="0,0,5,0"/>
-                                            <TextBlock Text="{Binding Preparat.Denumire}"/>
-                                        </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                    <TextBlock Text="{Binding Quantity}" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="x" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="{Binding Dish.Name}"/>
+                                                </StackPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

@@ -1,31 +1,33 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantOnline.Models
 {
-    public class Settingse : BaseModel
+    public class Setting : BaseModel
     {
-        private int _idSettings;
+        private int _settingId;
         private string _name = string.Empty;
         private string _value = string.Empty;
 
         [Key]
-        public int IdSetare
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int SettingId
         {
-            get => _idSettings;
-            set => SetField(ref _idSettings, value);
+            get => _settingId;
+            set => SetField(ref _settingId, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Nume
+        [StringLength(100)]
+        public string Name
         {
             get => _name;
             set => SetField(ref _name, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Valoare
+        [StringLength(100)]
+        public string Value
         {
             get => _value;
             set => SetField(ref _value, value);

@@ -23,7 +23,7 @@ namespace RestaurantOnline.Services
             if (id is int categorieId)
             {
                 return await _context.Categories
-                    .FirstOrDefaultAsync(c => c.IdCategorie == categorieId);
+                    .FirstOrDefaultAsync(c => c.CategoryId == categorieId);
             }
             return null;
         }
@@ -32,7 +32,7 @@ namespace RestaurantOnline.Services
         {
             return await _context.Categories
                 .Include(c => c.Dishes)
-                .FirstOrDefaultAsync(c => c.IdCategorie == id);
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
         }
     }
 } 

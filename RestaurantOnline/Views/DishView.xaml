@@ -31,7 +31,7 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,0,20,10">
             <ComboBox ItemsSource="{Binding Categorii}" 
                       SelectedItem="{Binding CategorieSelectata}"
-                      DisplayMemberPath="Nume"
+                      DisplayMemberPath="Name"
                       Width="200" Margin="0,0,10,0"/>
             
             <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" 
@@ -68,23 +68,23 @@
                                 
                                 <!-- Imagine -->
                                 <Border Grid.Row="0" Background="#F8F8F8" CornerRadius="8,8,0,0">
-                                    <Image Source="{Binding Fotografii[0].Url, Converter={StaticResource ImagePathConverter}}" 
+                                    <Image Source="{Binding Photos[0].Url, Converter={StaticResource ImagePathConverter}}" 
                                            Stretch="Uniform" Margin="10"/>
                                 </Border>
                                 
                                 <!-- Denumire -->
-                                <TextBlock Grid.Row="1" Text="{Binding Denumire}" 
+                                <TextBlock Grid.Row="1" Text="{Binding Name}" 
                                            FontSize="16" FontWeight="SemiBold" 
                                            Margin="10,10,10,0"/>
                                 
                                 <!-- Categorie -->
                                 <TextBlock Grid.Row="2" 
-                                           Text="{Binding Categorie.Nume}" 
+                                           Text="{Binding Category.Name}" 
                                            Foreground="#666666" Margin="10,5,10,0"/>
                                 
                                 <!-- Pret -->
                                 <TextBlock Grid.Row="3" 
-                                           Text="{Binding Pret, StringFormat={}{0:F2} lei}" 
+                                           Text="{Binding Price, StringFormat={}{0:F2} lei}" 
                                            FontWeight="Bold" FontSize="16" 
                                            Foreground="#2E7D32" Margin="10,10,10,5"/>
                                 

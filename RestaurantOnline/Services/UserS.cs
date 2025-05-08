@@ -18,7 +18,7 @@ namespace RestaurantOnline.Services
             if (id is int utilizatorId)
             {
                 return await _context.Users
-                    .FirstOrDefaultAsync(u => u.IdUtilizator == utilizatorId);
+                    .FirstOrDefaultAsync(u => u.UserId == utilizatorId);
             }
             return null;
         }
@@ -38,7 +38,7 @@ namespace RestaurantOnline.Services
                 return null;
                 
             return _context.Users
-                .FirstOrDefault(u => u.Email == email && u.Parola == parola);
+                .FirstOrDefault(u => u.Email == email && u.Password == parola);
         }
 
         public void Adauga(User utilizator)

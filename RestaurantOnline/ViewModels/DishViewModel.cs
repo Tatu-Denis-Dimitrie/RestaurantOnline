@@ -94,7 +94,7 @@ namespace RestaurantOnline.ViewModels
             {
                 var categorii = await _categorieService.GetAllAsync();
                 
-                var toateCategoriile = new Category { Nume = "Toate categoriile" };
+                var toateCategoriile = new Category { Name = "Toate categoriile" };
                 Categorii.Clear();
                 Categorii.Add(toateCategoriile);
                 
@@ -127,9 +127,9 @@ namespace RestaurantOnline.ViewModels
                     var searchResults = await _preparatService.SearchPreparat(_searchTerm);
                     rezultat = new ObservableCollection<Dish>(searchResults);
                 }
-                else if (_categorieSelectata != null && _categorieSelectata.IdCategorie > 0)
+                else if (_categorieSelectata != null && _categorieSelectata.CategoryId > 0)
                 {
-                    rezultat = await _preparatService.GetByCategorie(_categorieSelectata.IdCategorie);
+                    rezultat = await _preparatService.GetByCategorie(_categorieSelectata.CategoryId);
                 }
                 else
                 {
@@ -154,7 +154,7 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
-                var preparatDetaliat = await _preparatService.GetDetaliiPreparat(preparat.IdPreparate);
+                var preparatDetaliat = await _preparatService.GetDetaliiPreparat(preparat.DishId);
                 
                 if (preparatDetaliat != null)
                 {

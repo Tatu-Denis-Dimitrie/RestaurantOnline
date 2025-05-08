@@ -7,97 +7,101 @@ namespace RestaurantOnline.Models
 {
     public class Dish : BaseModel
     {
-        private int _idDish;
+        private int _dishId;
         private string _name = string.Empty;
         private decimal _price;
-        private int _gramQuantityPortion;
-        private int _totalQuantity;
-        private int _idCategry;
-        private Category? _category;
-        private ObservableCollection<DishImage>? _image;
-        private ObservableCollection<DishAllergens>? _dishAllergens;
-        private ObservableCollection<MenuDish>? _menuDish;
+        private int _portionSizeGrams;
+        private int _totalQuantityGrams;
+        private int _categoryId;
+        private Category _category;
+        private ObservableCollection<DishImage> _photos;
+        private ObservableCollection<DishAllergen> _dishAllergens;
+        private ObservableCollection<MenuDish> _menuDishes;
 
         public Dish()
         {
-            _image = new ObservableCollection<DishImage>();
-            _dishAllergens = new ObservableCollection<DishAllergens>();
-            _menuDish = new ObservableCollection<MenuDish>();
+            _photos = new ObservableCollection<DishImage>();
+            _dishAllergens = new ObservableCollection<DishAllergen>();
+            _menuDishes = new ObservableCollection<MenuDish>();
         }
 
         [Key]
-        public int IdPreparate
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int DishId
         {
-            get => _idDish;
-            set => SetField(ref _idDish, value);
+            get => _dishId;
+            set => SetField(ref _dishId, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Denumire
+        [StringLength(100)]
+        public string Name
         {
             get => _name;
             set => SetField(ref _name, value);
         }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Pret
+        [Column(TypeName = "decimal(10, 2)")]
+        public decimal Price
         {
             get => _price;
             set => SetField(ref _price, value);
         }
 
         [Required]
-        public int CantitatePortieGrame
+        public int PortionSizeGrams
         {
-            get => _gramQuantityPortion;
-            set => SetField(ref _gramQuantityPortion, value);
+            get => _portionSizeGrams;
+            set => SetField(ref _portionSizeGrams, value);
         }
 
         [Required]
-        public int CantitateTotalaGrame
+        public int TotalQuantityGrams
         {
-            get => _totalQuantity;
-            set => SetField(ref _totalQuantity, value);
+            get => _totalQuantityGrams;
+            set => SetField(ref _totalQuantityGrams, value);
         }
 
         [Required]
-        public int IdCategorie
+        public int CategoryId
         {
-            get => _idCategry;
-            set => SetField(ref _idCategry, value);
+            get => _categoryId;
+            set => SetField(ref _categoryId, value);
         }
 
-        [ForeignKey("IdCategorie")]
-        public virtual Category? Categorie
+        [ForeignKey("CategoryId")]
+        public virtual Category Category
         {
             get => _category;
             set => SetField(ref _category, value);
         }
 
-        public virtual ObservableCollection<DishImage>? Fotografii
+        // Relație one-to-many cu DishPhoto
+        public virtual ObservableCollection<DishImage> Photos
         {
-            get => _image;
-            set => SetField(ref _image, value);
+            get => _photos ??= new ObservableCollection<DishImage>();
+            set => SetField(ref _photos, value);
         }
 
-        public virtual ObservableCollection<DishAllergens>? PreparatAlergeni
+        // Relație many-to-many cu Allergen prin DishAllergen
+        public virtual ObservableCollection<DishAllergen> DishAllergens
         {
-            get => _dishAllergens;
+            get => _dishAllergens ??= new ObservableCollection<DishAllergen>();
             set => SetField(ref _dishAllergens, value);
         }
 
-        public virtual ObservableCollection<MenuDish>? MeniuPreparate
+        // Relație many-to-many cu Menu prin MenuDish
+        public virtual ObservableCollection<MenuDish> MenuDishes
         {
-            get => _menuDish;
-            set => SetField(ref _menuDish, value);
+            get => _menuDishes ??= new ObservableCollection<MenuDish>();
+            set => SetField(ref _menuDishes, value);
         }
 
         [NotMapped]
-        public virtual IEnumerable<Allergen> Alergeni => PreparatAlergeni?.Select(pa => pa.Alergen).Where(a => a != null).Cast<Allergen>() ?? Enumerable.Empty<Allergen>();
+        public virtual IEnumerable<Allergen> Allergens => DishAllergens?.Select(da => da.Allergen).Where(a => a != null) ?? Enumerable.Empty<Allergen>();
 
         [NotMapped]
-        public virtual IEnumerable<Menu> Meniuri => MeniuPreparate?.Select(mp => mp.Meniu).Where(m => m != null).Cast<Menu>() ?? Enumerable.Empty<Menu>();
+        public virtual IEnumerable<Menu> Menus => MenuDishes?.Select(md => md.Menu).Where(m => m != null) ?? Enumerable.Empty<Menu>();
     }
 } 

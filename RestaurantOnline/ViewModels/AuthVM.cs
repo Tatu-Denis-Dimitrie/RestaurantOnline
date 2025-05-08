@@ -7,20 +7,20 @@ namespace RestaurantOnline.ViewModels
 {
     public class AuthVM : ViewModelBase
     {
-        private readonly IUserS _utilizatorService;
+        private readonly IUserS _ServiceUser;
         private readonly MainViewModel _mainViewModel;
         private string _email;
-        private string _parola;
-        private string _nume;
-        private string _prenume;
-        private string _telefon;
-        private string _adresaLivrare;
+        private string _password;
+        private string _name;
+        private string _surname;
+        private string _phoneNumber;
+        private string _deliveryAddress;
         private string _errorMessage;
         private bool _isLoginMode = true;
 
         public AuthVM(IUserS utilizatorService, MainViewModel mainViewModel, bool isRegisterMode = false)
         {
-            _utilizatorService = utilizatorService;
+            _ServiceUser = utilizatorService;
             _mainViewModel = mainViewModel;
             _isLoginMode = !isRegisterMode;
             LoginCommand = new RelayCommand(_ => Login());
@@ -40,50 +40,50 @@ namespace RestaurantOnline.ViewModels
 
         public string Parola
         {
-            get => _parola;
+            get => _password;
             set
             {
-                _parola = value;
+                _password = value;
                 OnPropertyChanged();
             }
         }
 
         public string Nume
         {
-            get => _nume;
+            get => _name;
             set
             {
-                _nume = value;
+                _name = value;
                 OnPropertyChanged();
             }
         }
 
         public string Prenume
         {
-            get => _prenume;
+            get => _surname;
             set
             {
-                _prenume = value;
+                _surname = value;
                 OnPropertyChanged();
             }
         }
 
         public string Telefon
         {
-            get => _telefon;
+            get => _phoneNumber;
             set
             {
-                _telefon = value;
+                _phoneNumber = value;
                 OnPropertyChanged();
             }
         }
 
         public string AdresaLivrare
         {
-            get => _adresaLivrare;
+            get => _deliveryAddress;
             set
             {
-                _adresaLivrare = value;
+                _deliveryAddress = value;
                 OnPropertyChanged();
             }
         }
@@ -133,7 +133,7 @@ namespace RestaurantOnline.ViewModels
 
             try
             {
-                var utilizator = _utilizatorService.Autentificare(Email, Parola);
+                var utilizator = _ServiceUser.Autentificare(Email, Parola);
                 if (utilizator != null)
                 {
                     _mainViewModel.UtilizatorCurent = utilizator;
@@ -165,15 +165,15 @@ namespace RestaurantOnline.ViewModels
                 var utilizator = new User
                 {
                     Email = Email,
-                    Parola = Parola, // in productie, parola ar trebui hash-uita
-                    Nume = Nume,
-                    Prenume = Prenume,
-                    Telefon = Telefon,
-                    AdresaLivrare = AdresaLivrare,
-                    Rol = "Client" // Rol implicit pentru utilizatorii noi
+                    Password = Parola, // in productie, parola ar trebui hash-uita
+                    FirstName = Nume,
+                    LastName = Prenume,
+                    Phone = Telefon,
+                    DeliveryAddress = AdresaLivrare,
+                    Role = "Client" // Rol implicit pentru utilizatorii noi
                 };
 
-                _utilizatorService.Adauga(utilizator);
+                _ServiceUser.Adauga(utilizator);
                 _mainViewModel.UtilizatorCurent = utilizator;
                 _mainViewModel.NavigateToHome();
             }

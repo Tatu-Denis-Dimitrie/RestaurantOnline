@@ -42,7 +42,7 @@ namespace RestaurantOnline
                 // Configurare DbContext - schimbat in ServiceLifetime.Scoped
                 services.AddDbContext<RestaurantDbContext>(options =>
                 {
-                    options.UseSqlServer("Server=DESKTOP-4MN145N;Database=RestaurantDB;Trusted_Connection=True;TrustServerCertificate=True;");
+                    options.UseSqlServer("Server=DESKTOP-4MN145N;Database=RestaurantDB2;Trusted_Connection=True;TrustServerCertificate=True;");
                     options.EnableSensitiveDataLogging(true);
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 }, ServiceLifetime.Scoped);
@@ -54,7 +54,7 @@ namespace RestaurantOnline
                 services.AddScoped<IRestaurantS<Menu>, RestaurantDataS<Menu>>();
                 services.AddScoped<IRestaurantS<User>, UserS>();
                 services.AddScoped<IRestaurantS<Order>, OrderS>();
-                services.AddScoped<IRestaurantS<Settingse>, RestaurantDataS<Settingse>>();
+                services.AddScoped<IRestaurantS<Setting>, RestaurantDataS<Setting>>();
 
                 // Servicii specializate - schimbat din Singleton in Scoped
                 services.AddScoped<DishS>();

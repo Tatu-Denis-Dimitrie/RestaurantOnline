@@ -7,94 +7,98 @@ namespace RestaurantOnline.Models
 {
     public class Menu : BaseModel
     {
-        private int _idMenu;
+        private int _menuId;
         private string _name = string.Empty;
-        private int _idCategory;
-        private Category? _category;
-        private ObservableCollection<MenuDish>? _menuDish;
+        private int _categoryId;
+        private Category _category;
+        private ObservableCollection<MenuDish> _menuDishes;
 
         public Menu()
         {
-            _menuDish = new ObservableCollection<MenuDish>();
+            _menuDishes = new ObservableCollection<MenuDish>();
         }
 
         [Key]
-        public int IdMeniu
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MenuId
         {
-            get => _idMenu;
-            set => SetField(ref _idMenu, value);
+            get => _menuId;
+            set => SetField(ref _menuId, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Denumire
+        [StringLength(100)]
+        public string Name
         {
             get => _name;
             set => SetField(ref _name, value);
         }
 
         [Required]
-        public int IdCategorie
+        public int CategoryId
         {
-            get => _idCategory;
-            set => SetField(ref _idCategory, value);
+            get => _categoryId;
+            set => SetField(ref _categoryId, value);
         }
 
-        [ForeignKey("IdCategorie")]
-        public virtual Category? Categorie
+        [ForeignKey("CategoryId")]
+        public virtual Category Category
         {
             get => _category;
             set => SetField(ref _category, value);
         }
 
-        public virtual ObservableCollection<MenuDish>? MeniuPreparate
+        // Relație many-to-many cu Dish prin MenuDish
+        public virtual ObservableCollection<MenuDish> MenuDishes
         {
-            get => _menuDish;
-            set => SetField(ref _menuDish, value);
+            get => _menuDishes ??= new ObservableCollection<MenuDish>();
+            set => SetField(ref _menuDishes, value);
         }
 
         [NotMapped]
-        public virtual IEnumerable<Dish> Preparate => MeniuPreparate?.Select(mp => mp.Preparat).Where(p => p != null).Cast<Dish>() ?? Enumerable.Empty<Dish>();
+        public virtual IEnumerable<Dish> Dishes => MenuDishes?.Select(md => md.Dish).Where(d => d != null) ?? Enumerable.Empty<Dish>();
     }
 
     public class MenuDish : BaseModel
     {
-        private int _idMenu;
-        private int _idDish;
-        private int _quantity;
-        private Menu? _menu;
-        private Dish? _dish;
+        private int _menuId;
+        private int _dishId;
+        private int _quantityGrams;
+        private Menu _menu;
+        private Dish _dish;
 
-        [Key, Column(Order = 0)]
-        public int IdMeniu
+        [Key]
+        [Column(Order = 0)]
+        public int MenuId
         {
-            get => _idMenu;
-            set => SetField(ref _idMenu, value);
+            get => _menuId;
+            set => SetField(ref _menuId, value);
         }
 
-        [Key, Column(Order = 1)]
-        public int IdPreparate
+        [Key]
+        [Column(Order = 1)]
+        public int DishId
         {
-            get => _idDish;
-            set => SetField(ref _idDish, value);
+            get => _dishId;
+            set => SetField(ref _dishId, value);
         }
 
         [Required]
-        public int CantitateGrame
+        public int QuantityGrams
         {
-            get => _quantity;
-            set => SetField(ref _quantity, value);
+            get => _quantityGrams;
+            set => SetField(ref _quantityGrams, value);
         }
 
-        [ForeignKey("IdMeniu")]
-        public virtual Menu? Meniu
+        [ForeignKey("MenuId")]
+        public virtual Menu Menu
         {
             get => _menu;
             set => SetField(ref _menu, value);
         }
 
-        [ForeignKey("IdPreparate")]
-        public virtual Dish? Preparat
+        [ForeignKey("DishId")]
+        public virtual Dish Dish
         {
             get => _dish;
             set => SetField(ref _dish, value);

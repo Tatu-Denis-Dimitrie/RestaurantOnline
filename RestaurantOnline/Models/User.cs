@@ -1,19 +1,20 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantOnline.Models
 {
     public class User : BaseModel
     {
-        private int _idUser;
-        private string _name = string.Empty;
-        private string _surname = string.Empty;
+        private int _userId;
+        private string _firstName = string.Empty;
+        private string _lastName = string.Empty;
         private string _email = string.Empty;
-        private string? _phoneNumber;
-        private string? _deliveryAddress;
-        private string _pass = string.Empty;
+        private string _phone = string.Empty;
+        private string _deliveryAddress = string.Empty;
+        private string _password = string.Empty;
         private string _role = "Client";
-        private ObservableCollection<Order>? _orders;
+        private ObservableCollection<Order> _orders;
 
         public User()
         {
@@ -21,30 +22,31 @@ namespace RestaurantOnline.Models
         }
 
         [Key]
-        public int IdUtilizator
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int UserId
         {
-            get => _idUser;
-            set => SetField(ref _idUser, value);
+            get => _userId;
+            set => SetField(ref _userId, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Nume
+        [StringLength(100)]
+        public string FirstName
         {
-            get => _name;
-            set => SetField(ref _name, value);
+            get => _firstName;
+            set => SetField(ref _firstName, value);
         }
 
         [Required]
-        [MaxLength(100)]
-        public string Prenume
+        [StringLength(100)]
+        public string LastName
         {
-            get => _surname;
-            set => SetField(ref _surname, value);
+            get => _lastName;
+            set => SetField(ref _lastName, value);
         }
 
         [Required]
-        [MaxLength(100)]
+        [StringLength(100)]
         [EmailAddress]
         public string Email
         {
@@ -52,42 +54,42 @@ namespace RestaurantOnline.Models
             set => SetField(ref _email, value);
         }
 
-        [MaxLength(20)]
-        public string? Telefon
+        [StringLength(20)]
+        public string Phone
         {
-            get => _phoneNumber;
-            set => SetField(ref _phoneNumber, value);
+            get => _phone;
+            set => SetField(ref _phone, value);
         }
 
-        [MaxLength(200)]
-        public string? AdresaLivrare
+        [StringLength(200)]
+        public string DeliveryAddress
         {
             get => _deliveryAddress;
             set => SetField(ref _deliveryAddress, value);
         }
 
         [Required]
-        [MaxLength(255)]
-        public string Parola
+        [StringLength(100)]
+        public string Password
         {
-            get => _pass;
-            set => SetField(ref _pass, value);
+            get => _password;
+            set => SetField(ref _password, value);
         }
 
         [Required]
-        [MaxLength(20)]
-        public string Rol
+        [StringLength(20)]
+        public string Role
         {
             get => _role;
             set => SetField(ref _role, value);
         }
 
-        public virtual ObservableCollection<Order>? Comenzi
+        public virtual ObservableCollection<Order> Orders
         {
-            get => _orders;
+            get => _orders ??= new ObservableCollection<Order>();
             set => SetField(ref _orders, value);
         }
 
-        public string NumeComplet => $"{Nume} {Prenume}";
+        public string NumeComplet => $"{FirstName} {LastName}";
     }
 } 

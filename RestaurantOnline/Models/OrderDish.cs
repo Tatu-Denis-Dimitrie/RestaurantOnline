@@ -5,40 +5,45 @@ namespace RestaurantOnline.Models
 {
     public class OrderDish : BaseModel
     {
-        private int _idOrder;
-        private int _idDish;
+        private int _orderId;
+        private int _dishId;
         private int _quantity;
-        private Order? _order;
-        private Dish? _dish;
+        private Order _order;
+        private Dish _dish;
 
-        public int IdComanda
+        [Key]
+        [Column(Order = 0)]
+        public int OrderId
         {
-            get => _idOrder;
-            set => SetField(ref _idOrder, value);
+            get => _orderId;
+            set => SetField(ref _orderId, value);
         }
 
-        public int IdPreparate
+        [Key]
+        [Column(Order = 1)]
+        public int DishId
         {
-            get => _idDish;
-            set => SetField(ref _idDish, value);
+            get => _dishId;
+            set => SetField(ref _dishId, value);
         }
 
         [Required]
-        public int Cantitate
+        [Range(1, int.MaxValue)]
+        public int Quantity
         {
             get => _quantity;
             set => SetField(ref _quantity, value);
         }
 
-        [ForeignKey("IdComanda")]
-        public virtual Order? Comanda
+        [ForeignKey("OrderId")]
+        public virtual Order Order
         {
             get => _order;
             set => SetField(ref _order, value);
         }
 
-        [ForeignKey("IdPreparate")]
-        public virtual Dish? Preparat
+        [ForeignKey("DishId")]
+        public virtual Dish Dish
         {
             get => _dish;
             set => SetField(ref _dish, value);

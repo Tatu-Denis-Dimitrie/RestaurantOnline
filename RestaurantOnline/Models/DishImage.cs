@@ -5,34 +5,36 @@ namespace RestaurantOnline.Models
 {
     public class DishImage : BaseModel
     {
-        private int _idImage;
-        private int _idDish;
+        private int _photoId;
+        private int _dishId;
         private string _url = string.Empty;
-        private Dish? _dish;
+        private Dish _dish;
 
         [Key]
-        public int IdFoto
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int PhotoId
         {
-            get => _idImage;
-            set => SetField(ref _idImage, value);
-        }
-
-        public int IdPreparate
-        {
-            get => _idDish;
-            set => SetField(ref _idDish, value);
+            get => _photoId;
+            set => SetField(ref _photoId, value);
         }
 
         [Required]
-        [MaxLength(255)]
+        public int DishId
+        {
+            get => _dishId;
+            set => SetField(ref _dishId, value);
+        }
+
+        [Required]
+        [StringLength(255)]
         public string Url
         {
             get => _url;
             set => SetField(ref _url, value);
         }
 
-        [ForeignKey("IdPreparate")]
-        public virtual Dish? Preparat
+        [ForeignKey("DishId")]
+        public virtual Dish Dish
         {
             get => _dish;
             set => SetField(ref _dish, value);

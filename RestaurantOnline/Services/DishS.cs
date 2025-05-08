@@ -16,10 +16,10 @@ namespace RestaurantOnline.Services
         public override async Task<ObservableCollection<Dish>> GetAllAsync()
         {
             var preparate = await _context.Dishes
-                .Include(p => p.Categorie)
-                .Include(p => p.Fotografii)
-                .Include(p => p.PreparatAlergeni)
-                    .ThenInclude(pa => pa.Alergen)
+                .Include(p => p.Category)
+                .Include(p => p.Photos)
+                .Include(p => p.DishAllergens)
+                    .ThenInclude(pa => pa.Allergen)
                 .ToListAsync();
 
             return new ObservableCollection<Dish>(preparate);
@@ -30,11 +30,11 @@ namespace RestaurantOnline.Services
             if (id is int preparatId)
             {
                 return await _context.Dishes
-                    .Include(p => p.Categorie)
-                    .Include(p => p.Fotografii)
-                    .Include(p => p.PreparatAlergeni)
-                        .ThenInclude(pa => pa.Alergen)
-                    .FirstOrDefaultAsync(p => p.IdPreparate == preparatId);
+                    .Include(p => p.Category)
+                    .Include(p => p.Photos)
+                    .Include(p => p.DishAllergens)
+                    .ThenInclude(pa => pa.Allergen)
+                    .FirstOrDefaultAsync(p => p.DishId == preparatId);
             }
             return null;
         }
@@ -42,10 +42,10 @@ namespace RestaurantOnline.Services
         public async Task<ObservableCollection<Dish>> GetByCategorie(int categorieId)
         {
             var preparate = await _context.Dishes
-                .Where(p => p.IdCategorie == categorieId)
-                .Include(p => p.Fotografii)
-                .Include(p => p.PreparatAlergeni)
-                    .ThenInclude(pa => pa.Alergen)
+                .Where(p => p.CategoryId == categorieId)
+                .Include(p => p.Photos)
+                .Include(p => p.DishAllergens)
+                    .ThenInclude(pa => pa.Allergen)
                 .ToListAsync();
 
             return new ObservableCollection<Dish>(preparate);
@@ -58,8 +58,8 @@ namespace RestaurantOnline.Services
 
         public async Task<bool> AreAlergeni(int preparatId, int[] alergeniIds)
         {
-            return await _context.DishAlergens
-                .AnyAsync(pa => pa.IdPreparate == preparatId && alergeniIds.Contains(pa.IdAlergen));
+            return await _context.DishAllergens
+                .AnyAsync(pa => pa.DishId == preparatId && alergeniIds.Contains(pa.AllergenId));
         }
 
         public async Task<IEnumerable<Dish>> SearchPreparat(string searchTerm)
@@ -70,12 +70,12 @@ namespace RestaurantOnline.Services
             searchTerm = searchTerm.ToLower();
             
             return await _context.Dishes
-                .Include(p => p.Categorie)
-                .Include(p => p.Fotografii)
-                .Include(p => p.PreparatAlergeni)
-                    .ThenInclude(pa => pa.Alergen)
-                .Where(p => p.Denumire.ToLower().Contains(searchTerm) || 
-                            p.Categorie.Nume.ToLower().Contains(searchTerm))
+                .Include(p => p.Category)
+                .Include(p => p.Photos)
+                .Include(p => p.DishAllergens)
+                    .ThenInclude(pa => pa.Allergen)
+                .Where(p => p.Name.ToLower().Contains(searchTerm) || 
+                            p.Category.Name.ToLower().Contains(searchTerm))
                 .ToListAsync();
         }
     }

@@ -16,9 +16,9 @@ namespace RestaurantOnline.Services
         public override async Task<ObservableCollection<Order>> GetAllAsync()
         {
             var comenzi = await _context.Orders
-                .Include(c => c.Utilizator)
-                .Include(c => c.ComandaPreparate)
-                    .ThenInclude(cp => cp.Preparat)
+                .Include(c => c.User)
+                .Include(c => c.OrderDishes)
+                    .ThenInclude(cp => cp.Dish)
                 .ToListAsync();
 
             return new ObservableCollection<Order>(comenzi);
@@ -36,9 +36,9 @@ namespace RestaurantOnline.Services
         public async Task<ObservableCollection<Order>> GetComenziUtilizatorAsync(int idUtilizator)
         {
             var comenzi = await _context.Orders
-                .Where(c => c.IdUtilizator == idUtilizator)
-                .Include(c => c.ComandaPreparate)
-                    .ThenInclude(cp => cp.Preparat)
+                .Where(c => c.UserId == idUtilizator)
+                .Include(c => c.OrderDishes)
+                    .ThenInclude(cp => cp.Dish)
                 .ToListAsync();
 
             return new ObservableCollection<Order>(comenzi);
@@ -47,10 +47,10 @@ namespace RestaurantOnline.Services
         public async Task<Order> GetComandaDetaliiAsync(int idComanda)
         {
             return await _context.Orders
-                .Include(c => c.Utilizator)
-                .Include(c => c.ComandaPreparate)
-                    .ThenInclude(cp => cp.Preparat)
-                .FirstOrDefaultAsync(c => c.IdComanda == idComanda);
+                .Include(c => c.User)
+                .Include(c => c.OrderDishes)
+                    .ThenInclude(cp => cp.Dish)
+                .FirstOrDefaultAsync(c => c.OrderId == idComanda);
         }
 
         public async Task<bool> ActualizeazaStareComandaAsync(int idComanda, string stareNoua)
@@ -59,7 +59,7 @@ namespace RestaurantOnline.Services
             if (comanda == null)
                 return false;
                 
-            comanda.Stare = stareNoua;
+            comanda.Status = stareNoua;
             await _context.SaveChangesAsync();
             return true;
         }

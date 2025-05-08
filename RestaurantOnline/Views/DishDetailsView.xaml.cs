@@ -27,26 +27,26 @@ namespace RestaurantOnline.Views
             if (preparat == null) return;
             
             // Seteaza detaliile de baza
-            this.Title = $"Detalii - {preparat.Denumire}";
-            NumePreparat.Text = preparat.Denumire;
-            CategoriePreparat.Text = preparat.Categorie?.Nume ?? "Categorie necunoscuta";
-            PretPreparat.Text = $"{preparat.Pret:F2} lei";
-            CantitatePortie.Text = $"{preparat.CantitatePortieGrame} g";
-            CantitateDisponibila.Text = $"{preparat.CantitateTotalaGrame} g";
+            this.Title = $"Detalii - {preparat.Name}";
+            NumePreparat.Text = preparat.Name;
+            CategoriePreparat.Text = preparat.Category?.Name ?? "Categorie necunoscuta";
+            PretPreparat.Text = $"{preparat.Price:F2} lei";
+            CantitatePortie.Text = $"{preparat.PortionSizeGrams} g";
+            CantitateDisponibila.Text = $"{preparat.TotalQuantityGrams} g";
             
             // Seteaza imaginea
-            if (preparat.Fotografii != null && preparat.Fotografii.Count > 0)
+            if (preparat.Photos != null && preparat.Photos.Count > 0)
             {
-                var fotografie = preparat.Fotografii[0];
+                var fotografie = preparat.Photos[0];
                 ImaginePreparatControl.Source = _imagePathConverter.Convert(
                     fotografie.Url, typeof(BitmapImage), null, null) as BitmapImage;
             }
             
             // Seteaza alergenii
-            if (preparat.Alergeni != null)
+            if (preparat.Allergens != null)
             {
                 var alergeniList = new List<Allergen>();
-                foreach (var alergen in preparat.Alergeni)
+                foreach (var alergen in preparat.Allergens)
                 {
                     alergeniList.Add(alergen);
                 }

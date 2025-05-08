@@ -2,85 +2,81 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace RestaurantOnline.Models
 {
-    public enum OrderStatus
-    {
-        inregistrata,
-        se_pregateste,
-        a_plecat_la_client,
-        livrata,
-        anulata
-    }
-
     public class Order : BaseModel
     {
-        private int _idOrder;
-        private int _idUser;
-        private string _state = string.Empty;
-        private decimal _finalValue;
+        private int _orderId;
+        private int _userId;
+        private DateTime _orderDate;
+        private string _status = "inregistrata";
+        private decimal _finalAmount;
         private decimal _deliveryFee;
-        private DateTime _orderDate = DateTime.Now;
-        private User? _user;
-        private ObservableCollection<OrderDish>? _orderDish;
+        private User _user;
+        private ObservableCollection<OrderDish> _orderDishes;
 
         public Order()
         {
-            _orderDish = new ObservableCollection<OrderDish>();
+            _orderDate = DateTime.Now;
+            _orderDishes = new ObservableCollection<OrderDish>();
         }
 
         [Key]
-        public int IdComanda
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int OrderId
         {
-            get => _idOrder;
-            set => SetField(ref _idOrder, value);
+            get => _orderId;
+            set => SetField(ref _orderId, value);
         }
 
-        public int IdUtilizator
+        [Required]
+        public int UserId
         {
-            get => _idUser;
-            set => SetField(ref _idUser, value);
+            get => _userId;
+            set => SetField(ref _userId, value);
         }
 
-        public string Stare
-        {
-            get => _state;
-            set => SetField(ref _state, value);
-        }
-
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal ValoareFinala
-        {
-            get => _finalValue;
-            set => SetField(ref _finalValue, value);
-        }
-
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Transport
-        {
-            get => _deliveryFee;
-            set => SetField(ref _deliveryFee, value);
-        }
-
-        public DateTime DataComanda
+        [Required]
+        public DateTime OrderDate
         {
             get => _orderDate;
             set => SetField(ref _orderDate, value);
         }
 
-        [ForeignKey("IdUtilizator")]
-        public virtual User? Utilizator
+        [Required]
+        [StringLength(20)]
+        public string Status
+        {
+            get => _status;
+            set => SetField(ref _status, value);
+        }
+
+        [Column(TypeName = "decimal(10, 2)")]
+        public decimal FinalAmount
+        {
+            get => _finalAmount;
+            set => SetField(ref _finalAmount, value);
+        }
+
+        [Column(TypeName = "decimal(10, 2)")]
+        public decimal DeliveryFee
+        {
+            get => _deliveryFee;
+            set => SetField(ref _deliveryFee, value);
+        }
+
+        [ForeignKey("UserId")]
+        public virtual User User
         {
             get => _user;
             set => SetField(ref _user, value);
         }
 
-        public virtual ObservableCollection<OrderDish>? ComandaPreparate
+        public virtual ObservableCollection<OrderDish> OrderDishes
         {
-            get => _orderDish;
-            set => SetField(ref _orderDish, value);
+            get => _orderDishes ??= new ObservableCollection<OrderDish>();
+            set => SetField(ref _orderDishes, value);
         }
     }
 } 
