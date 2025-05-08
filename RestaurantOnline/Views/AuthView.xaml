@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Titlu -->
-        <TextBlock Grid.Row="0" Text="{Binding IsLoginMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Autentificare|inregistrare'}" 
+        <TextBlock Grid.Row="0" Text="{Binding FormTitle}" 
                    FontSize="24" FontWeight="Bold" Margin="20,10"/>
 
         <!-- Formular -->
@@ -41,7 +41,7 @@
             <PasswordBox x:Name="PasswordBox" Grid.Row="3" Margin="0,0,0,10" Padding="5"/>
 
             <!-- Campuri pentru inregistrare -->
-            <Grid Grid.Row="4" Visibility="{Binding IsLoginMode, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid Grid.Row="4" Visibility="{Binding RegisterFieldsVisibility}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -55,37 +55,42 @@
 
                 <!-- Nume -->
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Nume:" Margin="0,0,0,5"/>
-                <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding Nume, UpdateSourceTrigger=PropertyChanged}" 
                          Margin="0,0,5,10" Padding="5"/>
 
                 <!-- Prenume -->
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="Prenume:" Margin="0,0,0,5"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Prenume, UpdateSourceTrigger=PropertyChanged}" 
                          Margin="5,0,0,10" Padding="5"/>
 
                 <!-- Telefon -->
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Telefon:" Margin="0,0,0,5"/>
-                <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding Telefon, UpdateSourceTrigger=PropertyChanged}" 
                          Margin="0,0,5,10" Padding="5"/>
 
                 <!-- Adresa Livrare -->
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="Adresa Livrare:" Margin="0,0,0,5"/>
-                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding AdresaLivrare, UpdateSourceTrigger=PropertyChanged}" 
                          Margin="5,0,0,10" Padding="5"/>
             </Grid>
 
             <!-- Mesaj de eroare -->
             <TextBlock Grid.Row="5" Text="{Binding ErrorMessage}" Foreground="Red" 
-                       TextWrapping="Wrap" Margin="0,10" Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                       TextWrapping="Wrap" Margin="0,10" Visibility="{Binding ErrorMessageVisibility}"/>
 
             <!-- Butoane -->
             <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
-                <Button Content="{Binding IsLoginMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Autentificare|inregistrare'}" 
+                <!-- Buton Autentificare - vizibil doar în modul login -->
+                <Button Content="Autentificare" 
                         Command="{Binding LoginCommand}"
-                        Width="120" Height="30" Margin="5" Background="#3498db" Foreground="White"/>
-                <Button Content="{Binding IsLoginMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='inregistrare|Autentificare'}" 
-                        Command="{Binding ToggleModeCommand}"
-                        Width="120" Height="30" Margin="5" Background="#2ecc71" Foreground="White"/>
+                        Width="120" Height="30" Margin="5" Background="#3498db" Foreground="White"
+                        Visibility="{Binding LoginButtonVisibility}"/>
+                
+                <!-- Buton Înregistrare - vizibil doar în modul înregistrare -->
+                <Button Content="Înregistrare" 
+                        Command="{Binding RegisterCommand}"
+                        Width="120" Height="30" Margin="5" Background="#2ecc71" Foreground="White"
+                        Visibility="{Binding RegisterButtonVisibility}"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -18,10 +18,11 @@ namespace RestaurantOnline.ViewModels
         private string _errorMessage;
         private bool _isLoginMode = true;
 
-        public AuthVM(IUserS utilizatorService, MainViewModel mainViewModel)
+        public AuthVM(IUserS utilizatorService, MainViewModel mainViewModel, bool isRegisterMode = false)
         {
             _utilizatorService = utilizatorService;
             _mainViewModel = mainViewModel;
+            _isLoginMode = !isRegisterMode;
             LoginCommand = new RelayCommand(_ => Login());
             RegisterCommand = new RelayCommand(_ => Register());
             ToggleModeCommand = new RelayCommand(_ => ToggleMode());
@@ -94,8 +95,11 @@ namespace RestaurantOnline.ViewModels
             {
                 _errorMessage = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ErrorMessageVisibility));
             }
         }
+
+        public System.Windows.Visibility ErrorMessageVisibility => string.IsNullOrEmpty(ErrorMessage) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
         public bool IsLoginMode
         {
@@ -104,8 +108,16 @@ namespace RestaurantOnline.ViewModels
             {
                 _isLoginMode = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(LoginButtonVisibility));
+                OnPropertyChanged(nameof(RegisterButtonVisibility));
+                OnPropertyChanged(nameof(FormTitle));
             }
         }
+
+        public string FormTitle => IsLoginMode ? "Autentificare" : "Înregistrare";
+        public System.Windows.Visibility LoginButtonVisibility => IsLoginMode ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        public System.Windows.Visibility RegisterButtonVisibility => IsLoginMode ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+        public System.Windows.Visibility RegisterFieldsVisibility => IsLoginMode ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
         public ICommand LoginCommand { get; }
         public ICommand RegisterCommand { get; }

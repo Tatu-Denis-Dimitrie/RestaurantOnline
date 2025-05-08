@@ -48,9 +48,12 @@
 
                 <!-- Buton Login/Sign Up -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10">
-                    <Button Content="{Binding UtilizatorCurent, Converter={StaticResource NullToTextConverter}, ConverterParameter='Login|Contul meu'}" 
-                            Width="120" Margin="5,0" Command="{Binding NavigateToAutentificareCommand}" 
+                    <Button Content="Login" 
+                            Width="100" Margin="5,0" Command="{Binding NavigateToAutentificareCommand}" 
                             Foreground="White" Background="#e74c3c" BorderBrush="#e74c3c"/>
+                    <Button Content="Sign in" 
+                            Width="100" Margin="5,0" Command="{Binding NavigateToInregistrareCommand}" 
+                            Foreground="White" Background="#2ecc71" BorderBrush="#2ecc71"/>
                 </StackPanel>
             </Grid>
         </Border>

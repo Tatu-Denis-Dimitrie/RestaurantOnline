@@ -30,6 +30,7 @@ namespace RestaurantOnline.ViewModels
             NavigateToUtilizatoriCommand = new RelayCommand(_ => NavigateToUtilizatori());
             NavigateToComenziCommand = new RelayCommand(_ => NavigateToComenzi());
             NavigateToAutentificareCommand = new RelayCommand(_ => NavigateToAutentificare());
+            NavigateToInregistrareCommand = new RelayCommand(_ => NavigateToInregistrare());
             
             // incarcam automat pagina de preparate la pornire
             NavigateToPreparate();
@@ -52,6 +53,7 @@ namespace RestaurantOnline.ViewModels
         public ICommand NavigateToUtilizatoriCommand { get; }
         public ICommand NavigateToComenziCommand { get; }
         public ICommand NavigateToAutentificareCommand { get; }
+        public ICommand NavigateToInregistrareCommand { get; }
 
         private void NavigateToPreparate()
         {
@@ -71,6 +73,11 @@ namespace RestaurantOnline.ViewModels
         private void NavigateToAutentificare()
         {
             CurrentViewModel = new AuthVM(_utilizatorService, this);
+        }
+
+        private void NavigateToInregistrare()
+        {
+            CurrentViewModel = new AuthVM(_utilizatorService, this, isRegisterMode: true);
         }
 
         public void NavigateToHome()
