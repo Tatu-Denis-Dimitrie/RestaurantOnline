@@ -36,23 +36,45 @@ namespace RestaurantOnline.Services
 
         public virtual async Task<T> UpdateAsync(T entity)
         {
-            var entry = _context.Entry(entity);
-            if (entry.State == EntityState.Detached)
-                _dbSet.Attach(entity);
+            try
+            {
+                // Resetam starea de tracking pentru a evita probleme cu entitati duplicate
+                _context.ChangeTracker.Clear();
                 
-            entry.State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return entity;
+                var entry = _context.Entry(entity);
+                if (entry.State == EntityState.Detached)
+                    _dbSet.Attach(entity);
+                    
+                entry.State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return entity;
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"Eroare la actualizarea entitatii: {ex.Message}");
+                throw; // Re-aruncam exceptia pentru a fi tratata de apelant
+            }
         }
 
         public virtual async Task<bool> DeleteAsync(object id)
         {
-            var entity = await GetByIdAsync(id);
-            if (entity == null) return false;
+            try
+            {
+                // Resetam starea de tracking pentru a evita probleme cu entitati duplicate
+                _context.ChangeTracker.Clear();
+                
+                var entity = await GetByIdAsync(id);
+                if (entity == null) return false;
 
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
-            return true;
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"Eroare la stergerea entitatii: {ex.Message}");
+                throw; // Re-aruncam exceptia pentru a fi tratata de apelant
+            }
         }
     }
 } 

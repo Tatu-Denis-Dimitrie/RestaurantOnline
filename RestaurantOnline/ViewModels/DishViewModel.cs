@@ -18,6 +18,7 @@ namespace RestaurantOnline.ViewModels
         private readonly Dispatcher _dispatcher;
         private readonly object _lockObject = new object();
         private bool _isLoading = false;
+        private bool _isAngajat;
         
         private ObservableCollection<Dish> _preparate;
         private ObservableCollection<Category> _categorii;
@@ -25,11 +26,12 @@ namespace RestaurantOnline.ViewModels
         private string _searchTerm = string.Empty;
         private string _errorMessage = string.Empty;
         
-        public DishViewModel(DishS preparatService, CategoryS categorieService)
+        public DishViewModel(DishS preparatService, CategoryS categorieService, bool isAngajat = false)
         {
             _preparatService = preparatService ?? throw new ArgumentNullException(nameof(preparatService));
             _categorieService = categorieService ?? throw new ArgumentNullException(nameof(categorieService));
             _dispatcher = Application.Current.Dispatcher;
+            _isAngajat = isAngajat;
             
             _preparate = new ObservableCollection<Dish>();
             _categorii = new ObservableCollection<Category>();
@@ -37,6 +39,7 @@ namespace RestaurantOnline.ViewModels
             SearchCommand = new RelayCommand(_ => LoadPreparate());
             DetaliiCommand = new RelayCommand(p => ShowDetalii(p as Dish));
             AdaugaLaComandaCommand = new RelayCommand(p => AdaugaLaComanda(p as Dish));
+            StergePreparatCommand = new RelayCommand(p => StergePreparat(p as Dish), p => _isAngajat);
             
             LoadCategorii();
             LoadPreparate();
@@ -84,9 +87,16 @@ namespace RestaurantOnline.ViewModels
             set => SetProperty(ref _isLoading, value);
         }
         
+        public bool IsAngajat
+        {
+            get => _isAngajat;
+            set => SetProperty(ref _isAngajat, value);
+        }
+        
         public ICommand SearchCommand { get; }
         public ICommand DetaliiCommand { get; }
         public ICommand AdaugaLaComandaCommand { get; }
+        public ICommand StergePreparatCommand { get; }
         
         private async void LoadCategorii()
         {
@@ -179,6 +189,44 @@ namespace RestaurantOnline.ViewModels
         {
             if (preparat == null) return;
             
+        }
+        
+        private async void StergePreparat(Dish? preparat)
+        {
+            if (preparat == null) return;
+            
+            var result = MessageBox.Show(
+                $"Esti sigur ca doresti sa stergi preparatul '{preparat.Name}'?", 
+                "Confirmare stergere",
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Question);
+                
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var success = await _preparatService.DeleteDishAsync(preparat.DishId);
+                    
+                    if (success)
+                    {
+                        MessageBox.Show("Preparatul a fost sters cu succes.", "Succes", 
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                            
+                        // Reincarcam lista de preparate
+                        LoadPreparate();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nu s-a putut sterge preparatul.", "Eroare", 
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Eroare la stergerea preparatului: {ex.Message}", "Eroare", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 } 

@@ -1,0 +1,103 @@
+<UserControl x:Class="RestaurantOnline.Views.AddDishView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,5,0,10"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,5,0,10"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlul paginii -->
+        <TextBlock Grid.Row="0" Text="Add New Dish" 
+                   FontSize="24" FontWeight="Bold" Margin="20,20,20,10"/>
+        
+        <!-- Formular adaugare preparat -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20,0">
+            <StackPanel>
+                <!-- Eroare -->
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" FontWeight="SemiBold"
+                          Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                          Margin="0,0,0,10" TextWrapping="Wrap"/>
+                
+                <!-- Numele preparatului -->
+                <TextBlock Text="Numele preparatului:" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Pret -->
+                <TextBlock Text="Pret (lei):" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Gramaj portie -->
+                <TextBlock Text="Cantitate portie (grams):" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding PortionSizeGrams, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Cantitate in stoc -->
+                <TextBlock Text="Cantitate totala (grams):" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding TotalQuantityGrams, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Categorie -->
+                <TextBlock Text="Categorie:" FontWeight="SemiBold"/>
+                <ComboBox ItemsSource="{Binding Categories}" 
+                          SelectedItem="{Binding SelectedCategory}"
+                          DisplayMemberPath="Name"/>
+                
+                <!-- Alergeni -->
+                <TextBlock Text="Alergeni:" FontWeight="SemiBold" Margin="0,10,0,5"/>
+                <ListBox ItemsSource="{Binding AllAllergens}" 
+                        SelectionMode="Multiple" Height="120"
+                        Margin="0,0,0,10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Name}" Margin="5,2" IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                
+                <!-- Nume imagine -->
+                <TextBlock Text="Numele imaginii:" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding PhotoName, UpdateSourceTrigger=PropertyChanged}" 
+                         Margin="0,5,0,10"/>
+                
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Butoane actiuni -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" 
+                    HorizontalAlignment="Right" Margin="20">
+            <Button Content="Cancel" Command="{Binding CancelCommand}" 
+                    Background="#e74c3c" Foreground="White"/>
+            <Button Content="Save" Command="{Binding SaveCommand}" 
+                    Background="#2ecc71" Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</UserControl> 

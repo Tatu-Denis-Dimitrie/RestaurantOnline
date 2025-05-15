@@ -77,21 +77,21 @@ namespace RestaurantOnline.Models
             set => SetField(ref _category, value);
         }
 
-        // Relație one-to-many cu DishPhoto
+        // Relatie one-to-many cu DishPhoto
         public virtual ObservableCollection<DishImage> Photos
         {
             get => _photos ??= new ObservableCollection<DishImage>();
             set => SetField(ref _photos, value);
         }
 
-        // Relație many-to-many cu Allergen prin DishAllergen
+        // Relatie many-to-many cu Allergen prin DishAllergen
         public virtual ObservableCollection<DishAllergen> DishAllergens
         {
             get => _dishAllergens ??= new ObservableCollection<DishAllergen>();
             set => SetField(ref _dishAllergens, value);
         }
 
-        // Relație many-to-many cu Menu prin MenuDish
+        // Relatie many-to-many cu Menu prin MenuDish
         public virtual ObservableCollection<MenuDish> MenuDishes
         {
             get => _menuDishes ??= new ObservableCollection<MenuDish>();

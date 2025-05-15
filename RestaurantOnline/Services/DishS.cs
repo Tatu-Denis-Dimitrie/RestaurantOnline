@@ -78,5 +78,73 @@ namespace RestaurantOnline.Services
                             p.Category.Name.ToLower().Contains(searchTerm))
                 .ToListAsync();
         }
+
+        public override async Task<Dish> AddAsync(Dish entity)
+        {
+            try
+            {
+                // Adaugam entitatea
+                _context.Dishes.Add(entity);
+                
+                // Salvam modificarile
+                await _context.SaveChangesAsync();
+                
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                // Loggam eroarea sau o tratam corespunzator
+                Console.WriteLine($"Eroare la adaugarea preparatului: {ex.Message}");
+                throw; // Re-aruncam exceptia pentru a fi tratata de apelant
+            }
+        }
+
+        public async Task<bool> DeleteDishAsync(int dishId)
+        {
+            try
+            {
+                // Resetam starea de tracking pentru a evita probleme cu entitati duplicate
+                _context.ChangeTracker.Clear();
+                
+                // Gasim preparatul cu toate relatiile sale
+                var preparat = await _context.Dishes
+                    .Include(p => p.DishAllergens)
+                    .Include(p => p.Photos)
+                    .Include(p => p.MenuDishes)
+                    .FirstOrDefaultAsync(p => p.DishId == dishId);
+
+                if (preparat == null)
+                    return false;
+
+                // stergem toate relatiile
+                foreach (var alergen in preparat.DishAllergens.ToList())
+                {
+                    _context.DishAllergens.Remove(alergen);
+                }
+                
+                foreach (var photo in preparat.Photos.ToList())
+                {
+                    _context.DishPhotos.Remove(photo);
+                }
+                
+                foreach (var menuDish in preparat.MenuDishes.ToList())
+                {
+                    _context.MenuDishes.Remove(menuDish);
+                }
+
+                // stergem preparatul
+                _context.Dishes.Remove(preparat);
+
+                // Salvam schimbarile
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Loggam eroarea sau o tratam corespunzator
+                Console.WriteLine($"Eroare la stergerea preparatului: {ex.Message}");
+                throw; // Re-aruncam exceptia pentru a fi tratata de apelant
+            }
+        }
     }
 } 

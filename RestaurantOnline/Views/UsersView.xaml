@@ -4,8 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter"/>
+    </UserControl.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
@@ -24,6 +30,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
@@ -37,12 +45,33 @@
                             <TextBlock Text="{Binding DeliveryAddress}" Margin="0,5,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Role}" FontWeight="Bold"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding Role}" 
+                                   FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                        
+                        <Button Grid.Column="2" Content="Schimba rolul"
+                                VerticalAlignment="Center" 
+                                Width="110" Height="30" Margin="5,0"
+                                Background="#2196F3" Foreground="White"
+                                Command="{Binding DataContext.SchimbaRolCommand, 
+                                         RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                CommandParameter="{Binding}"/>
+                        
+                        <Button Grid.Column="3" Content="sterge" 
+                                VerticalAlignment="Center" 
+                                Width="80" Height="30" 
+                                Background="#e74c3c" Foreground="White"
+                                Command="{Binding DataContext.StergeUtilizatorCommand, 
+                                           RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                CommandParameter="{Binding}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        
+        <!-- Mesaj de eroare -->
+        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" 
+                   Foreground="Red" FontWeight="SemiBold" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
     </Grid>
 </UserControl> 

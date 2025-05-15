@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:RestaurantOnline"
         xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
         xmlns:views="clr-namespace:RestaurantOnline.Views"
+        xmlns:converters="clr-namespace:RestaurantOnline.Converters"
         mc:Ignorable="d"
         Title="Restaurant Online - Gestiune" Height="650" Width="1000">
     
@@ -22,42 +23,87 @@
         <DataTemplate DataType="{x:Type viewmodels:AuthVM}">
             <views:AuthView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AddDishViewModel}">
+            <views:AddDishView />
+        </DataTemplate>
+        
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
     </Window.Resources>
     
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Background="#2c3e50" Height="50">
+        <!-- Panel vertical pentru meniul din stanga -->
+        <Border Grid.Column="0" Background="#2c3e50">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Butoane de navigare -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10">
-                <TextBlock Text="RESTAURANT ONLINE" FontSize="18" Foreground="White" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                <Button Content="Preparate" Width="100" Margin="5,0" Command="{Binding NavigateToPreparateCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
-                <Button Content="Utilizatori" Width="100" Margin="5,0" Command="{Binding NavigateToUtilizatoriCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
-                <Button Content="Comenzi" Width="100" Margin="5,0" Command="{Binding NavigateToComenziCommand}" Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
-            </StackPanel>
-
-                <!-- Buton Login/Sign Up -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10">
-                    <Button Content="Login" 
-                            Width="100" Margin="5,0" Command="{Binding NavigateToAutentificareCommand}" 
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Titlu aplicatie -->
+                <TextBlock Grid.Row="0" Text="RESTAURANT ONLINE" FontSize="18" Foreground="White" 
+                           HorizontalAlignment="Center" Margin="10,20,10,30" TextWrapping="Wrap" TextAlignment="Center"/>
+                
+                <!-- Butoane de navigare verticale -->
+                <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,10">
+                    <Button Content="Preparate" Height="40" Margin="0,5" Command="{Binding NavigateToDishesCommand}" 
+                            Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
+                    
+                    <!-- Buton Utilizatori (vizibil doar pentru angajati) -->
+                    <Button Content="Utilizatori" Height="40" Margin="0,5" Command="{Binding NavigateToUsersCommand}" 
+                            Foreground="White" Background="#3498db" BorderBrush="#3498db"
+                            Visibility="{Binding ShowUsersButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <!-- Buton Comenzi (vizibil doar pentru angajati) -->
+                    <Button Content="Comenzi" Height="40" Margin="0,5" Command="{Binding NavigateToOrdersCommand}" 
+                            Foreground="White" Background="#3498db" BorderBrush="#3498db"
+                            Visibility="{Binding ShowOrdersButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <!-- Buton Adauga Preparat (vizibil doar pentru angajati) -->
+                    <Button Content="Adauga Preparat" Height="40" Margin="0,5" Command="{Binding NavigateToAddDishCommand}" 
+                            Foreground="White" Background="#9b59b6" BorderBrush="#9b59b6"
+                            Visibility="{Binding IsEmployeeLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <!-- Buton Contul Meu (vizibil doar pentru clienti autentificati) -->
+                    <Button Content="Contul Meu" Height="40" Margin="0,5" Command="{Binding NavigateToMyAccountCommand}"
+                            Visibility="{Binding IsClientLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Foreground="White" Background="#f39c12" BorderBrush="#f39c12"/>
+                </StackPanel>
+                
+                <!-- Butoane autentificare jos (vizibile doar cand utilizatorul nu e autentificat) -->
+                <StackPanel Grid.Row="2" Orientation="Vertical" Margin="20,10,20,20"
+                            Visibility="{Binding IsUserLoggedIn, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                    <Button Content="Login" Height="40" Margin="0,5" Command="{Binding NavigateToLoginCommand}" 
                             Foreground="White" Background="#e74c3c" BorderBrush="#e74c3c"/>
-                    <Button Content="Sign in" 
-                            Width="100" Margin="5,0" Command="{Binding NavigateToInregistrareCommand}" 
+                    <Button Content="Sign in" Height="40" Margin="0,5" Command="{Binding NavigateToRegisterCommand}" 
                             Foreground="White" Background="#2ecc71" BorderBrush="#2ecc71"/>
+                </StackPanel>
+                
+                <!-- Buton Logout (vizibil doar cand utilizatorul e autentificat) -->
+                <StackPanel Grid.Row="2" Orientation="Vertical" Margin="20,10,20,20"
+                            Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="{Binding UserDisplayName}" Foreground="White" 
+                               TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,5"/>
+                    <Button Content="Deconectare" Height="40" Margin="0,5" Command="{Binding LogoutCommand}" 
+                            Foreground="White" Background="#e74c3c" BorderBrush="#e74c3c"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+        <!-- Continutul principal -->
+        <Border Grid.Column="1" Background="White" Margin="0">
+            <ContentControl Content="{Binding CurrentViewModel}" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          VerticalContentAlignment="Stretch"/>
+        </Border>
     </Grid>
 </Window>

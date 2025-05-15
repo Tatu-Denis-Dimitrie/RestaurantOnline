@@ -50,7 +50,7 @@ namespace RestaurantOnline
                 // Servicii pentru entitati - schimbat din Singleton in Scoped
                 services.AddScoped<IRestaurantS<Dish>, DishS>();
                 services.AddScoped<IRestaurantS<Category>, CategoryS>();
-                services.AddScoped<IRestaurantS<Allergen>, RestaurantDataS<Allergen>>();
+                services.AddScoped<IRestaurantS<Allergen>, AllergenS>();
                 services.AddScoped<IRestaurantS<Menu>, RestaurantDataS<Menu>>();
                 services.AddScoped<IRestaurantS<User>, UserS>();
                 services.AddScoped<IRestaurantS<Order>, OrderS>();
@@ -61,6 +61,7 @@ namespace RestaurantOnline
                 services.AddScoped<CategoryS>();
                 services.AddScoped<OrderS>();
                 services.AddScoped<UserS>();
+                services.AddScoped<AllergenS>();
 
                 // ViewModels - cream factory pattern pentru ViewModel-uri
                 services.AddTransient<MainViewModel>(provider => {
@@ -68,7 +69,8 @@ namespace RestaurantOnline
                     var categorieService = provider.GetRequiredService<CategoryS>();
                     var utilizatorService = provider.GetRequiredService<UserS>();
                     var comandaService = provider.GetRequiredService<OrderS>();
-                    return new MainViewModel(preparatService, categorieService, utilizatorService, comandaService);
+                    var allergenService = provider.GetRequiredService<AllergenS>();
+                    return new MainViewModel(preparatService, categorieService, utilizatorService, comandaService, allergenService);
                 });
 
                 // Vizualizari

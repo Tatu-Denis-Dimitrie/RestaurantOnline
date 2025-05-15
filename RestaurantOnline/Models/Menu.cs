@@ -48,7 +48,7 @@ namespace RestaurantOnline.Models
             set => SetField(ref _category, value);
         }
 
-        // Relație many-to-many cu Dish prin MenuDish
+        // Relatie many-to-many cu Dish prin MenuDish
         public virtual ObservableCollection<MenuDish> MenuDishes
         {
             get => _menuDishes ??= new ObservableCollection<MenuDish>();

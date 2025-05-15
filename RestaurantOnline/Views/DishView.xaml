@@ -14,6 +14,7 @@
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
     
     <Grid>
@@ -96,6 +97,17 @@
                                             Command="{Binding DataContext.DetaliiCommand, 
                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                             CommandParameter="{Binding}"/>
+                                    
+                                    <!-- Buton de stergere pentru angajati -->
+                                    <Button Content="sterge" Margin="0,0,5,0" 
+                                            Background="#e74c3c" Foreground="White"
+                                            Command="{Binding DataContext.StergePreparatCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding DataContext.IsAngajat, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}, 
+                                            Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    
                                     <Button Content="Adauga" Background="#2E7D32" Foreground="White" 
                                             Command="{Binding DataContext.AdaugaLaComandaCommand, 
                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
