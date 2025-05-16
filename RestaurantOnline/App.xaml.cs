@@ -14,7 +14,9 @@ namespace RestaurantOnline
     /// </summary>
     public partial class App : Application
     {
-        private ServiceProvider serviceProvider;
+        private ServiceProvider _serviceProvider;
+
+        public ServiceProvider ServiceProvider => _serviceProvider;
 
         public App()
         {
@@ -22,7 +24,7 @@ namespace RestaurantOnline
             
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
-            serviceProvider = services.BuildServiceProvider();
+            _serviceProvider = services.BuildServiceProvider();
         }
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -51,7 +53,7 @@ namespace RestaurantOnline
                 services.AddScoped<IRestaurantS<Dish>, DishS>();
                 services.AddScoped<IRestaurantS<Category>, CategoryS>();
                 services.AddScoped<IRestaurantS<Allergen>, AllergenS>();
-                services.AddScoped<IRestaurantS<Menu>, RestaurantDataS<Menu>>();
+                services.AddScoped<IRestaurantS<Menu>, MenuService>();
                 services.AddScoped<IRestaurantS<User>, UserS>();
                 services.AddScoped<IRestaurantS<Order>, OrderS>();
                 services.AddScoped<IRestaurantS<Setting>, RestaurantDataS<Setting>>();
@@ -62,6 +64,7 @@ namespace RestaurantOnline
                 services.AddScoped<OrderS>();
                 services.AddScoped<UserS>();
                 services.AddScoped<AllergenS>();
+                services.AddScoped<MenuService>();
 
                 // ViewModels - cream factory pattern pentru ViewModel-uri
                 services.AddTransient<MainViewModel>(provider => {
@@ -88,8 +91,8 @@ namespace RestaurantOnline
             {
                 base.OnStartup(e);
                 
-                var mainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
-                var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+                var mainViewModel = _serviceProvider.GetRequiredService<MainViewModel>();
+                var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
                 mainWindow.DataContext = mainViewModel;
                 mainWindow.Show();
             }

@@ -58,6 +58,9 @@ namespace RestaurantOnline.Models
 
         [NotMapped]
         public virtual IEnumerable<Dish> Dishes => MenuDishes?.Select(md => md.Dish).Where(d => d != null) ?? Enumerable.Empty<Dish>();
+
+        [NotMapped]
+        public decimal TotalPrice => MenuDishes?.Sum(md => md.Dish?.Price ?? 0) ?? 0;
     }
 
     public class MenuDish : ViewModelBase

@@ -26,6 +26,12 @@
         <DataTemplate DataType="{x:Type viewmodels:AddDishViewModel}">
             <views:AddDishView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:MenuViewModel}">
+            <views:MenuView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:MyAccountViewModel}">
+            <views:MyAccountView />
+        </DataTemplate>
         
         <!-- Converters -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -53,6 +59,9 @@
                 <!-- Butoane de navigare verticale -->
                 <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,10">
                     <Button Content="Preparate" Height="40" Margin="0,5" Command="{Binding NavigateToDishesCommand}" 
+                            Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
+                    
+                    <Button Content="Meniuri" Height="40" Margin="0,5" Command="{Binding NavigateToMenusCommand}" 
                             Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
                     
                     <!-- Buton Utilizatori (vizibil doar pentru angajati) -->

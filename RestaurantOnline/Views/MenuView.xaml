@@ -1,0 +1,146 @@
+<UserControl x:Class="RestaurantOnline.Views.MenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlu -->
+        <TextBlock Grid.Row="0" Text="Meniuri Restaurant" 
+                   FontSize="24" FontWeight="Bold" Margin="20,10"/>
+        
+        <!-- Filtre -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,0,20,10">
+            <ComboBox ItemsSource="{Binding Categorii}" 
+                      SelectedItem="{Binding CategorieSelectata}"
+                      DisplayMemberPath="Name"
+                      Width="200" Margin="0,0,10,0"/>
+            
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" 
+                     Width="200" Margin="0,0,10,0" 
+                     VerticalContentAlignment="Center"
+                     Padding="5,0"/>
+            
+            <Button Command="{Binding SearchCommand}" 
+                    Content="Caută" Width="80"/>
+        </StackPanel>
+        
+        <!-- Lista de meniuri -->
+        <ScrollViewer Grid.Row="2" Margin="10" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Meniuri}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="250" Height="280" Margin="10" 
+                                BorderThickness="1" BorderBrush="#E0E0E0" 
+                                CornerRadius="8" Background="White">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="140"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Imagine (prima imagine din primul preparat din meniu) -->
+                                <Border Grid.Row="0" Background="#F8F8F8" CornerRadius="8,8,0,0">
+                                    <ItemsControl ItemsSource="{Binding MenuDishes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Rows="1"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="2" Background="#F0F0F0">
+                                                    <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}}" 
+                                                         Stretch="Uniform" Margin="1"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                                
+                                <!-- Denumire -->
+                                <TextBlock Grid.Row="1" Text="{Binding Name}" 
+                                           FontSize="16" FontWeight="SemiBold" 
+                                           Margin="10,10,10,0"/>
+                                
+                                <!-- Categorie -->
+                                <TextBlock Grid.Row="2" 
+                                           Text="{Binding Category.Name}" 
+                                           Foreground="#666666" Margin="10,5,10,0"/>
+                                
+                                <!-- Număr preparate -->
+                                <TextBlock Grid.Row="3" 
+                                           Text="{Binding MenuDishes.Count, StringFormat=Conține {0} preparate}" 
+                                           FontWeight="Bold" FontSize="14" 
+                                           Foreground="#2E7D32" Margin="10,10,10,5"/>
+                                
+                                <!-- Preț total meniu -->
+                                <TextBlock Grid.Row="3" 
+                                           Text="{Binding TotalPrice, StringFormat=Pret: {0:F2} lei}" 
+                                           FontWeight="Bold" FontSize="16" 
+                                           Foreground="Green" Margin="10,30,10,5" 
+                                           HorizontalAlignment="Left"/>
+                                
+                                <!-- Butoane -->
+                                <StackPanel Grid.Row="4" Orientation="Horizontal" 
+                                            VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+                                            Margin="0,0,10,10">
+                                    <Button Content="Detalii" Margin="0,0,5,0" 
+                                            Command="{Binding DataContext.DetaliiCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                            CommandParameter="{Binding}"/>
+                                    
+                                    <!-- Buton de ștergere pentru angajați -->
+                                    <Button Content="Șterge" Margin="0,0,5,0" 
+                                            Background="#e74c3c" Foreground="White"
+                                            Command="{Binding DataContext.StergeMeniuCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding DataContext.IsAngajat, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}, 
+                                            Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    
+                                    <Button Content="Adaugă" Background="#2E7D32" Foreground="White" 
+                                            Command="{Binding DataContext.AdaugaLaComandaCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                            CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Mesaj de eroare -->
+        <TextBlock Grid.Row="2" Text="{Binding ErrorMessage}" 
+                   Foreground="Red" FontWeight="SemiBold" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+    </Grid>
+</UserControl> 

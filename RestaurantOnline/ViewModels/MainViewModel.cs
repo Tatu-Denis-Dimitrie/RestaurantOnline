@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
 
@@ -13,6 +15,7 @@ namespace RestaurantOnline.ViewModels
         private readonly UserS _userService;
         private readonly OrderS _orderService;
         private readonly AllergenS _allergenService;
+        private readonly MenuService _menuService;
         private User? _currentUser;
 
         public MainViewModel(
@@ -27,6 +30,7 @@ namespace RestaurantOnline.ViewModels
             _userService = userService;
             _orderService = orderService;
             _allergenService = allergenService;
+            _menuService = ((App)Application.Current).ServiceProvider.GetRequiredService<MenuService>();
 
             // Activate navigation commands
             NavigateToDishesCommand = new RelayCommand(_ => NavigateToDishes());
@@ -36,6 +40,7 @@ namespace RestaurantOnline.ViewModels
             NavigateToRegisterCommand = new RelayCommand(_ => NavigateToRegister());
             NavigateToMyAccountCommand = new RelayCommand(_ => NavigateToMyAccount());
             NavigateToAddDishCommand = new RelayCommand(_ => NavigateToAddDish());
+            NavigateToMenusCommand = new RelayCommand(_ => NavigateToMenus());
             LogoutCommand = new RelayCommand(_ => Logout());
             
             // Load dishes page by default
@@ -87,11 +92,17 @@ namespace RestaurantOnline.ViewModels
         public ICommand NavigateToRegisterCommand { get; }
         public ICommand NavigateToMyAccountCommand { get; }
         public ICommand NavigateToAddDishCommand { get; }
+        public ICommand NavigateToMenusCommand { get; }
         public ICommand LogoutCommand { get; }
 
         private void NavigateToDishes()
         {
             CurrentViewModel = new DishViewModel(_dishService, _categoryService, IsEmployeeLoggedIn);
+        }
+
+        private void NavigateToMenus()
+        {
+            CurrentViewModel = new MenuViewModel(_menuService, _categoryService, IsEmployeeLoggedIn);
         }
 
         private void NavigateToUsers()
@@ -116,9 +127,9 @@ namespace RestaurantOnline.ViewModels
         
         private void NavigateToMyAccount()
         {
-            // Here we'll implement navigation to the My Account page
-            // for now, we'll return to the dishes page
-            NavigateToDishes();
+            if (CurrentUser == null) return;
+            
+            CurrentViewModel = new MyAccountViewModel(_orderService, _dishService, CurrentUser);
         }
         
         private void NavigateToAddDish()

@@ -1,0 +1,144 @@
+<Window x:Class="RestaurantOnline.Views.MenuDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RestaurantOnline.Views"
+        xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+        mc:Ignorable="d"
+        Title="Detalii Meniu" Height="550" Width="700"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Antet cu numele meniului si categoria -->
+        <StackPanel Grid.Row="0">
+            <TextBlock x:Name="NumeMeniu" Text="" 
+                       FontSize="24" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock x:Name="CategorieMeniu" Text="" 
+                       FontSize="14" Foreground="#666" Margin="0,0,0,10"/>
+        </StackPanel>
+        
+        <!-- Imagini pentru preparatele din meniu -->
+        <Border Grid.Row="1" Background="#F8F8F8" CornerRadius="8" 
+                Margin="0,10,0,10" Padding="10">
+            <ItemsControl x:Name="PozePreparat">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="5" Background="#F0F0F0" CornerRadius="4">
+                            <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}}"
+                                   Stretch="Uniform" Margin="5" Height="120"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+        
+        <!-- Lista de preparate incluse în meniu -->
+        <GroupBox Grid.Row="2" Header="Preparate incluse" Margin="0,10,0,60">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="PreparateListControl" Margin="5">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" BorderBrush="#DDDDDD" BorderThickness="1" 
+                                    CornerRadius="4" Margin="0,0,0,10" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Imagine preparat -->
+                                    <Border Grid.Column="0" Width="60" Height="60" 
+                                            Background="#F8F8F8" CornerRadius="4" Margin="0,0,10,0">
+                                        <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}}"
+                                               Stretch="Uniform" Margin="5"/>
+                                    </Border>
+                                    
+                                    <!-- Detalii preparat -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Dish.Name}" 
+                                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{Binding Dish.Category.Name}" 
+                                                   Foreground="#666" FontSize="12" Margin="0,0,0,5"/>
+                                        
+                                        <!-- Alergeni -->
+                                        <ItemsControl ItemsSource="{Binding Dish.Allergens}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="#FFF9E9" BorderBrush="#FFE9C5" BorderThickness="1"
+                                                            CornerRadius="4" Margin="0,0,5,5" Padding="5,2">
+                                                        <TextBlock Text="{Binding Name}" FontSize="10"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                    
+                                    <!-- Cantitate si pret -->
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding QuantityGrams, StringFormat=Cantitate: {0}g}"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                        <TextBlock Text="{Binding Dish.Price, StringFormat={}{0:F2} lei}"
+                                                   Foreground="#2E7D32" FontWeight="Bold" 
+                                                   FontSize="14" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+        
+        <!-- Secțiunea pentru alergeni din tot meniul -->
+        <Border Grid.Row="2" Background="#FFFDEB" CornerRadius="8" 
+                VerticalAlignment="Bottom" Padding="10" Height="50" Margin="0,0,0,10">
+            <StackPanel Margin="0,0,0,-10">
+                <TextBlock Text="Alergeni în acest meniu:" 
+                           FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <ItemsControl x:Name="ListaAlergeniControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#FFF9E9" BorderBrush="#FFE9C5" BorderThickness="1"
+                                    CornerRadius="4" Margin="0,0,5,0" Padding="5,2">
+                                <TextBlock Text="{Binding Name}" FontSize="10"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+        
+        <!-- Buton inchidere -->
+        <Button Grid.Row="3" Content="Închide" 
+                Width="100" Height="30" Margin="0,15,0,0" 
+                Click="CloseButton_Click" HorizontalAlignment="Right"/>
+    </Grid>
+</Window> 
