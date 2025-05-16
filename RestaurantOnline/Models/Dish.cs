@@ -2,10 +2,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class Dish : BaseModel
+    public class Dish : ViewModelBase
     {
         private int _dishId;
         private string _name = string.Empty;
@@ -30,7 +31,7 @@ namespace RestaurantOnline.Models
         public int DishId
         {
             get => _dishId;
-            set => SetField(ref _dishId, value);
+            set => SetProperty(ref _dishId, value);
         }
 
         [Required]
@@ -38,7 +39,7 @@ namespace RestaurantOnline.Models
         public string Name
         {
             get => _name;
-            set => SetField(ref _name, value);
+            set => SetProperty(ref _name, value);
         }
 
         [Required]
@@ -46,56 +47,56 @@ namespace RestaurantOnline.Models
         public decimal Price
         {
             get => _price;
-            set => SetField(ref _price, value);
+            set => SetProperty(ref _price, value);
         }
 
         [Required]
         public int PortionSizeGrams
         {
             get => _portionSizeGrams;
-            set => SetField(ref _portionSizeGrams, value);
+            set => SetProperty(ref _portionSizeGrams, value);
         }
 
         [Required]
         public int TotalQuantityGrams
         {
             get => _totalQuantityGrams;
-            set => SetField(ref _totalQuantityGrams, value);
+            set => SetProperty(ref _totalQuantityGrams, value);
         }
 
         [Required]
         public int CategoryId
         {
             get => _categoryId;
-            set => SetField(ref _categoryId, value);
+            set => SetProperty(ref _categoryId, value);
         }
 
         [ForeignKey("CategoryId")]
         public virtual Category Category
         {
             get => _category;
-            set => SetField(ref _category, value);
+            set => SetProperty(ref _category, value);
         }
 
         // Relatie one-to-many cu DishPhoto
         public virtual ObservableCollection<DishImage> Photos
         {
             get => _photos ??= new ObservableCollection<DishImage>();
-            set => SetField(ref _photos, value);
+            set => SetProperty(ref _photos, value);
         }
 
         // Relatie many-to-many cu Allergen prin DishAllergen
         public virtual ObservableCollection<DishAllergen> DishAllergens
         {
             get => _dishAllergens ??= new ObservableCollection<DishAllergen>();
-            set => SetField(ref _dishAllergens, value);
+            set => SetProperty(ref _dishAllergens, value);
         }
 
         // Relatie many-to-many cu Menu prin MenuDish
         public virtual ObservableCollection<MenuDish> MenuDishes
         {
             get => _menuDishes ??= new ObservableCollection<MenuDish>();
-            set => SetField(ref _menuDishes, value);
+            set => SetProperty(ref _menuDishes, value);
         }
 
         [NotMapped]

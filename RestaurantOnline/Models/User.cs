@@ -1,10 +1,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class User : BaseModel
+    public class User : ViewModelBase
     {
         private int _userId;
         private string _firstName = string.Empty;
@@ -26,7 +27,7 @@ namespace RestaurantOnline.Models
         public int UserId
         {
             get => _userId;
-            set => SetField(ref _userId, value);
+            set => SetProperty(ref _userId, value);
         }
 
         [Required]
@@ -34,7 +35,7 @@ namespace RestaurantOnline.Models
         public string FirstName
         {
             get => _firstName;
-            set => SetField(ref _firstName, value);
+            set => SetProperty(ref _firstName, value);
         }
 
         [Required]
@@ -42,7 +43,7 @@ namespace RestaurantOnline.Models
         public string LastName
         {
             get => _lastName;
-            set => SetField(ref _lastName, value);
+            set => SetProperty(ref _lastName, value);
         }
 
         [Required]
@@ -51,21 +52,21 @@ namespace RestaurantOnline.Models
         public string Email
         {
             get => _email;
-            set => SetField(ref _email, value);
+            set => SetProperty(ref _email, value);
         }
 
         [StringLength(20)]
         public string Phone
         {
             get => _phone;
-            set => SetField(ref _phone, value);
+            set => SetProperty(ref _phone, value);
         }
 
         [StringLength(200)]
         public string DeliveryAddress
         {
             get => _deliveryAddress;
-            set => SetField(ref _deliveryAddress, value);
+            set => SetProperty(ref _deliveryAddress, value);
         }
 
         [Required]
@@ -73,7 +74,7 @@ namespace RestaurantOnline.Models
         public string Password
         {
             get => _password;
-            set => SetField(ref _password, value);
+            set => SetProperty(ref _password, value);
         }
 
         [Required]
@@ -81,13 +82,13 @@ namespace RestaurantOnline.Models
         public string Role
         {
             get => _role;
-            set => SetField(ref _role, value);
+            set => SetProperty(ref _role, value);
         }
 
         public virtual ObservableCollection<Order> Orders
         {
             get => _orders ??= new ObservableCollection<Order>();
-            set => SetField(ref _orders, value);
+            set => SetProperty(ref _orders, value);
         }
 
         public string NumeComplet => $"{FirstName} {LastName}";

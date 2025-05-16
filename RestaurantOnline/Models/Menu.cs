@@ -2,10 +2,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class Menu : BaseModel
+    public class Menu : ViewModelBase
     {
         private int _menuId;
         private string _name = string.Empty;
@@ -23,7 +24,7 @@ namespace RestaurantOnline.Models
         public int MenuId
         {
             get => _menuId;
-            set => SetField(ref _menuId, value);
+            set => SetProperty(ref _menuId, value);
         }
 
         [Required]
@@ -31,35 +32,35 @@ namespace RestaurantOnline.Models
         public string Name
         {
             get => _name;
-            set => SetField(ref _name, value);
+            set => SetProperty(ref _name, value);
         }
 
         [Required]
         public int CategoryId
         {
             get => _categoryId;
-            set => SetField(ref _categoryId, value);
+            set => SetProperty(ref _categoryId, value);
         }
 
         [ForeignKey("CategoryId")]
         public virtual Category Category
         {
             get => _category;
-            set => SetField(ref _category, value);
+            set => SetProperty(ref _category, value);
         }
 
         // Relatie many-to-many cu Dish prin MenuDish
         public virtual ObservableCollection<MenuDish> MenuDishes
         {
             get => _menuDishes ??= new ObservableCollection<MenuDish>();
-            set => SetField(ref _menuDishes, value);
+            set => SetProperty(ref _menuDishes, value);
         }
 
         [NotMapped]
         public virtual IEnumerable<Dish> Dishes => MenuDishes?.Select(md => md.Dish).Where(d => d != null) ?? Enumerable.Empty<Dish>();
     }
 
-    public class MenuDish : BaseModel
+    public class MenuDish : ViewModelBase
     {
         private int _menuId;
         private int _dishId;
@@ -72,7 +73,7 @@ namespace RestaurantOnline.Models
         public int MenuId
         {
             get => _menuId;
-            set => SetField(ref _menuId, value);
+            set => SetProperty(ref _menuId, value);
         }
 
         [Key]
@@ -80,28 +81,28 @@ namespace RestaurantOnline.Models
         public int DishId
         {
             get => _dishId;
-            set => SetField(ref _dishId, value);
+            set => SetProperty(ref _dishId, value);
         }
 
         [Required]
         public int QuantityGrams
         {
             get => _quantityGrams;
-            set => SetField(ref _quantityGrams, value);
+            set => SetProperty(ref _quantityGrams, value);
         }
 
         [ForeignKey("MenuId")]
         public virtual Menu Menu
         {
             get => _menu;
-            set => SetField(ref _menu, value);
+            set => SetProperty(ref _menu, value);
         }
 
         [ForeignKey("DishId")]
         public virtual Dish Dish
         {
             get => _dish;
-            set => SetField(ref _dish, value);
+            set => SetProperty(ref _dish, value);
         }
     }
 } 

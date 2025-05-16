@@ -29,7 +29,6 @@
         
         <!-- Converters -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
     </Window.Resources>
     
     <Grid>
@@ -78,8 +77,17 @@
                 </StackPanel>
                 
                 <!-- Butoane autentificare jos (vizibile doar cand utilizatorul nu e autentificat) -->
-                <StackPanel Grid.Row="2" Orientation="Vertical" Margin="20,10,20,20"
-                            Visibility="{Binding IsUserLoggedIn, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                <StackPanel Grid.Row="2" Orientation="Vertical" Margin="20,10,20,20">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUserLoggedIn}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
                     <Button Content="Login" Height="40" Margin="0,5" Command="{Binding NavigateToLoginCommand}" 
                             Foreground="White" Background="#e74c3c" BorderBrush="#e74c3c"/>
                     <Button Content="Sign in" Height="40" Margin="0,5" Command="{Binding NavigateToRegisterCommand}" 

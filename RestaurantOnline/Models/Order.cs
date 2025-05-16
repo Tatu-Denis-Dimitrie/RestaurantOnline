@@ -2,10 +2,11 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class Order : BaseModel
+    public class Order : ViewModelBase
     {
         private int _orderId;
         private int _userId;
@@ -27,21 +28,21 @@ namespace RestaurantOnline.Models
         public int OrderId
         {
             get => _orderId;
-            set => SetField(ref _orderId, value);
+            set => SetProperty(ref _orderId, value);
         }
 
         [Required]
         public int UserId
         {
             get => _userId;
-            set => SetField(ref _userId, value);
+            set => SetProperty(ref _userId, value);
         }
 
         [Required]
         public DateTime OrderDate
         {
             get => _orderDate;
-            set => SetField(ref _orderDate, value);
+            set => SetProperty(ref _orderDate, value);
         }
 
         [Required]
@@ -49,34 +50,34 @@ namespace RestaurantOnline.Models
         public string Status
         {
             get => _status;
-            set => SetField(ref _status, value);
+            set => SetProperty(ref _status, value);
         }
 
         [Column(TypeName = "decimal(10, 2)")]
         public decimal FinalAmount
         {
             get => _finalAmount;
-            set => SetField(ref _finalAmount, value);
+            set => SetProperty(ref _finalAmount, value);
         }
 
         [Column(TypeName = "decimal(10, 2)")]
         public decimal DeliveryFee
         {
             get => _deliveryFee;
-            set => SetField(ref _deliveryFee, value);
+            set => SetProperty(ref _deliveryFee, value);
         }
 
         [ForeignKey("UserId")]
         public virtual User User
         {
             get => _user;
-            set => SetField(ref _user, value);
+            set => SetProperty(ref _user, value);
         }
 
         public virtual ObservableCollection<OrderDish> OrderDishes
         {
             get => _orderDishes ??= new ObservableCollection<OrderDish>();
-            set => SetField(ref _orderDishes, value);
+            set => SetProperty(ref _orderDishes, value);
         }
     }
 } 

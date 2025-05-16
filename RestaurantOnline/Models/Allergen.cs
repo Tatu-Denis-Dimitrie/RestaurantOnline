@@ -2,10 +2,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class Allergen : BaseModel
+    public class Allergen : ViewModelBase
     {
         private int _allergenId;
         private string _name = string.Empty;
@@ -21,7 +22,7 @@ namespace RestaurantOnline.Models
         public int AllergenId
         {
             get => _allergenId;
-            set => SetField(ref _allergenId, value);
+            set => SetProperty(ref _allergenId, value);
         }
 
         [Required]
@@ -29,13 +30,13 @@ namespace RestaurantOnline.Models
         public string Name
         {
             get => _name;
-            set => SetField(ref _name, value);
+            set => SetProperty(ref _name, value);
         }
 
         public virtual ObservableCollection<DishAllergen>? DishAllergens
         {
             get => _dishAllergens;
-            set => SetField(ref _dishAllergens, value);
+            set => SetProperty(ref _dishAllergens, value);
         }
 
         [NotMapped]

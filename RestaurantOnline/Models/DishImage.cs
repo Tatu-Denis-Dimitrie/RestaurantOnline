@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class DishImage : BaseModel
+    public class DishImage : ViewModelBase
     {
         private int _photoId;
         private int _dishId;
@@ -15,14 +16,14 @@ namespace RestaurantOnline.Models
         public int PhotoId
         {
             get => _photoId;
-            set => SetField(ref _photoId, value);
+            set => SetProperty(ref _photoId, value);
         }
 
         [Required]
         public int DishId
         {
             get => _dishId;
-            set => SetField(ref _dishId, value);
+            set => SetProperty(ref _dishId, value);
         }
 
         [Required]
@@ -30,14 +31,14 @@ namespace RestaurantOnline.Models
         public string Url
         {
             get => _url;
-            set => SetField(ref _url, value);
+            set => SetProperty(ref _url, value);
         }
 
         [ForeignKey("DishId")]
         public virtual Dish Dish
         {
             get => _dish;
-            set => SetField(ref _dish, value);
+            set => SetProperty(ref _dish, value);
         }
     }
 } 

@@ -11,10 +11,7 @@
     
     <UserControl.Resources>
         <converters:ImagePathConverter x:Key="ImagePathConverter"/>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
     
     <Grid>

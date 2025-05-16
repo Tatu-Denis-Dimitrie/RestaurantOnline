@@ -1,21 +1,27 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.Models
 {
-    public class Category : BaseModel
+    public class Category : ViewModelBase
     {
         private int _categoryId;
         private string _name;
         private ObservableCollection<Dish> _dishes;
+
+        public Category()
+        {
+            _dishes = new ObservableCollection<Dish>();
+        }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId
         {
             get => _categoryId;
-            set => SetField(ref _categoryId, value);
+            set => SetProperty(ref _categoryId, value);
         }
 
         [Required]
@@ -23,19 +29,14 @@ namespace RestaurantOnline.Models
         public string Name
         {
             get => _name;
-            set => SetField(ref _name, value);
+            set => SetProperty(ref _name, value);
         }
 
         // Relatie one-to-many cu Dishes
         public virtual ObservableCollection<Dish> Dishes
         {
             get => _dishes ??= new ObservableCollection<Dish>();
-            set => SetField(ref _dishes, value);
-        }
-
-        public Category()
-        {
-            _dishes = new ObservableCollection<Dish>();
+            set => SetProperty(ref _dishes, value);
         }
     }
 } 
