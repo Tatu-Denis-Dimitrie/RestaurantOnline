@@ -39,7 +39,8 @@
             <!-- Imagine preparat -->
             <Border Grid.Column="0" Background="#F8F8F8" CornerRadius="8" 
                     Margin="0,0,20,0" Width="200" Height="150">
-                <Image x:Name="ImaginePreparatControl" Source="" 
+                <Image x:Name="ImaginePreparatControl" 
+                       Source="{Binding Converter={StaticResource ImagePathConverter}, TargetNullValue='pack://application:,,,/Resources/Images/no_image.png'}" 
                        Stretch="Uniform" Margin="10"/>
             </Border>
             
@@ -69,10 +70,7 @@
                            Text="" Margin="10,5"/>
                 
                 <!-- Cantitate totala disponibila -->
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Cantitate disponibila:" 
-                           FontWeight="SemiBold" Margin="0,5"/>
-                <TextBlock x:Name="CantitateDisponibila" Grid.Row="2" Grid.Column="1" 
-                           Text="" Margin="10,5"/>
+                
             </Grid>
         </Grid>
         

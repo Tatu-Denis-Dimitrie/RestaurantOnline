@@ -4,13 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
@@ -65,14 +71,13 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Stare:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Status}" 
-                                       Foreground="{Binding Status, Converter={StaticResource StareToColorConverter}}" 
                                        FontWeight="SemiBold" Margin="0,2"/>
 
                             <!-- Valoare -->
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Valoare:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" 
-                                       Text="{Binding FinalAmount, StringFormat={}{0:C}}" 
+                                       Text="{Binding FinalAmount, StringFormat={}{0:F2} lei}" 
                                        Margin="0,2"/>
 
                             <!-- Produse -->
@@ -107,15 +112,46 @@
         <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" 
                    Foreground="Red" FontWeight="SemiBold" 
                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        
+        <!-- Panou pentru schimbarea statusului -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="15" Margin="10,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="Schimbă status comandă:" 
+                           VerticalAlignment="Center" FontWeight="SemiBold"/>
+                
+                <ComboBox Grid.Column="1" Margin="10,0" 
+                          ItemsSource="{Binding StatusuriDisponibile}"
+                          SelectedItem="{Binding SelectedStatus}"
+                          IsEnabled="{Binding ComandaSelectata, Converter={StaticResource BooleanToVisibilityConverter}}"
+                          Width="200" HorizontalAlignment="Left">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                
+                <Button Grid.Column="2" Content="Actualizează Status" 
+                        Command="{Binding SchimbaStatusCommand}"
+                        IsEnabled="{Binding ComandaSelectata, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Width="140" Height="30"/>
+            </Grid>
+        </Border>
         
         <!-- Butoane -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,20,20">
-            <Button Command="{Binding RefreshCommand}" Content="Reimprospateaza" 
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,20,20">
+            <Button Command="{Binding RefreshCommand}" Content="Reîmprospătează" 
                     Width="120" Height="30" Margin="10,0"/>
-            <Button Command="{Binding DetaliiComandaCommand}" Content="Detalii comanda" 
+            <Button Command="{Binding DetaliiComandaCommand}" Content="Detalii comandă" 
                     Width="120" Height="30" Margin="10,0"
-                    IsEnabled="{Binding ComandaSelectata, Converter={StaticResource NullToVisibilityConverter}}"/>
+                    IsEnabled="{Binding ComandaSelectata, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </StackPanel>
     </Grid>
 </UserControl> 

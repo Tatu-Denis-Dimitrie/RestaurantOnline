@@ -32,7 +32,6 @@ namespace RestaurantOnline.Views
             CategoriePreparat.Text = preparat.Category?.Name ?? "Categorie necunoscuta";
             PretPreparat.Text = $"{preparat.Price:F2} lei";
             CantitatePortie.Text = $"{preparat.PortionSizeGrams} g";
-            CantitateDisponibila.Text = $"{preparat.TotalQuantityGrams} g";
             
             // Seteaza imaginea
             if (preparat.Photos != null && preparat.Photos.Count > 0)

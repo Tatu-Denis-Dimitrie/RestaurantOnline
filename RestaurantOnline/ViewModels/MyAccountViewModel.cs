@@ -27,6 +27,7 @@ namespace RestaurantOnline.ViewModels
 
             ViewOrderDetailsCommand = new RelayCommand(o => ViewOrderDetails(o as Order));
             RefreshCommand = new RelayCommand(_ => LoadUserOrders());
+            CancelOrderCommand = new RelayCommand(o => CancelOrder(o as Order));
 
             LoadUserOrders();
         }
@@ -61,6 +62,7 @@ namespace RestaurantOnline.ViewModels
 
         public ICommand ViewOrderDetailsCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand CancelOrderCommand { get; private set; }
 
         private async void LoadUserOrders()
         {
@@ -71,8 +73,13 @@ namespace RestaurantOnline.ViewModels
 
             try
             {
+                // Forțăm context-ul să ignore cache-ul și să reîncarce datele din baza de date
                 var orders = await _orderService.GetComenziUtilizatorAsync(_currentUser.UserId);
-                Comenzi = orders;
+                Comenzi.Clear();
+                foreach (var order in orders)
+                {
+                    Comenzi.Add(order);
+                }
             }
             catch (Exception ex)
             {
@@ -103,6 +110,59 @@ namespace RestaurantOnline.ViewModels
             {
                 MessageBox.Show($"Eroare la afișarea detaliilor comenzii: {ex.Message}", 
                     "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void CancelOrder(Order order)
+        {
+            if (order == null) return;
+
+            // Confirmă cu utilizatorul
+            var result = MessageBox.Show(
+                $"Sigur doriți să anulați comanda #{order.OrderId}?",
+                "Confirmare anulare",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            IsLoading = true;
+            ErrorMessage = null;
+
+            try
+            {
+                // IMPORTANT: Actualizează statusul comenzii în baza de date folosind OrderService
+                var success = await _orderService.ActualizeazaStareComandaAsync(order.OrderId, "anulata");
+
+                // Actualizează și local statusul comenzii pentru a reflecta imediat în UI
+                order.Status = "anulata";
+                MessageBox.Show(
+                    $"Comanda #{order.OrderId} a fost anulată cu succes. Status modificat în baza de date.",
+                    "Comandă anulată",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                // Reîncărcăm comenzile pentru a reflecta schimbările din baza de date
+                LoadUserOrders();
+            }
+            catch (Exception ex)
+            {
+                string mesajDetaliat = $"Eroare la actualizarea stării comenzii în baza de date: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    mesajDetaliat += $"\nDetalii: {ex.InnerException.Message}";
+                }
+                
+                ErrorMessage = mesajDetaliat;
+                MessageBox.Show(
+                    mesajDetaliat,
+                    "Eroare",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }

@@ -32,6 +32,9 @@
         <DataTemplate DataType="{x:Type viewmodels:MyAccountViewModel}">
             <views:MyAccountView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:CartViewModel}">
+            <views:CartView />
+        </DataTemplate>
         
         <!-- Converters -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -63,6 +66,11 @@
                     
                     <Button Content="Meniuri" Height="40" Margin="0,5" Command="{Binding NavigateToMenusCommand}" 
                             Foreground="White" Background="#3498db" BorderBrush="#3498db"/>
+                    
+                    <!-- Buton Coș cumpărături -->
+                    <Button Content="Coș cumpărături" Height="40" Margin="0,5" Command="{Binding NavigateToCartCommand}" 
+                            Foreground="White" Background="#f39c12" BorderBrush="#f39c12"
+                            Visibility="{Binding IsClientLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     
                     <!-- Buton Utilizatori (vizibil doar pentru angajati) -->
                     <Button Content="Utilizatori" Height="40" Margin="0,5" Command="{Binding NavigateToUsersCommand}" 

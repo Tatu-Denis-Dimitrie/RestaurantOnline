@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
 using RestaurantOnline.Views;
@@ -189,6 +190,30 @@ namespace RestaurantOnline.ViewModels
         {
             if (preparat == null) return;
             
+            try
+            {
+                // Creăm o nouă instanță de CartViewModel pentru a adăuga preparatul
+                var orderService = ((App)Application.Current).ServiceProvider.GetService(typeof(OrderS)) as OrderS;
+                var mainViewModel = ((App)Application.Current).ServiceProvider.GetService(typeof(MainViewModel)) as MainViewModel;
+                
+                if (orderService != null && mainViewModel != null)
+                {
+                    var cartViewModel = new CartViewModel(orderService, _preparatService, mainViewModel);
+                    cartViewModel.AddToCart(preparat);
+                    
+                    // Salvăm instanța cart în Properties
+                    if (Application.Current.Properties.Contains("CartItems"))
+                    {
+                        Application.Current.Properties.Remove("CartItems");
+                    }
+                    Application.Current.Properties.Add("CartItems", cartViewModel.CartItems);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Eroare la adăugarea în coș: {ex.Message}", "Eroare", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         
         private async void StergePreparat(Dish? preparat)

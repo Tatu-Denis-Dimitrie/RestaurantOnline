@@ -41,6 +41,7 @@ namespace RestaurantOnline.ViewModels
             NavigateToMyAccountCommand = new RelayCommand(_ => NavigateToMyAccount());
             NavigateToAddDishCommand = new RelayCommand(_ => NavigateToAddDish());
             NavigateToMenusCommand = new RelayCommand(_ => NavigateToMenus());
+            NavigateToCartCommand = new RelayCommand(_ => NavigateToCart());
             LogoutCommand = new RelayCommand(_ => Logout());
             
             // Load dishes page by default
@@ -93,13 +94,19 @@ namespace RestaurantOnline.ViewModels
         public ICommand NavigateToMyAccountCommand { get; }
         public ICommand NavigateToAddDishCommand { get; }
         public ICommand NavigateToMenusCommand { get; }
+        public ICommand NavigateToCartCommand { get; }
         public ICommand LogoutCommand { get; }
 
-        private void NavigateToDishes()
+        public void NavigateToHome()
+        {
+            NavigateToDishes();
+        }
+        
+        public void NavigateToDishes()
         {
             CurrentViewModel = new DishViewModel(_dishService, _categoryService, IsEmployeeLoggedIn);
         }
-
+        
         private void NavigateToMenus()
         {
             CurrentViewModel = new MenuViewModel(_menuService, _categoryService, IsEmployeeLoggedIn);
@@ -137,14 +144,57 @@ namespace RestaurantOnline.ViewModels
             CurrentViewModel = new AddDishViewModel(_dishService, _categoryService, _allergenService, this);
         }
         
+        private async void NavigateToCart()
+        {
+            var cartViewModel = new CartViewModel(_orderService, _dishService, this);
+            
+            try
+            {
+                // Dacă există items salvate, le încărcăm
+                if (Application.Current.Properties.Contains("CartItems") && 
+                    Application.Current.Properties["CartItems"] is ObservableCollection<CartItem> savedItems)
+                {
+                    // Verifică și încarcă din nou preparatele pentru a asigura datele complete
+                    var updatedItems = new ObservableCollection<CartItem>();
+                    foreach (var item in savedItems)
+                    {
+                        if (item.Dish != null)
+                        {
+                            // Reîncarcă preparatul cu toate relațiile sale
+                            var completeDish = await _dishService.GetDetaliiPreparat(item.Dish.DishId);
+                            if (completeDish != null)
+                            {
+                                updatedItems.Add(new CartItem 
+                                { 
+                                    Dish = completeDish, 
+                                    Quantity = item.Quantity 
+                                });
+                            }
+                        }
+                    }
+                    
+                    cartViewModel.CartItems = updatedItems;
+                    
+                    // Actualizează items salvate
+                    Application.Current.Properties["CartItems"] = updatedItems;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Eroare la încărcarea coșului: {ex.Message}", 
+                    "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+                    
+                // În caz de eroare, începem cu un coș gol
+                cartViewModel.CartItems = new ObservableCollection<CartItem>();
+                Application.Current.Properties["CartItems"] = cartViewModel.CartItems;
+            }
+            
+            CurrentViewModel = cartViewModel;
+        }
+        
         private void Logout()
         {
             CurrentUser = null;
-            NavigateToDishes();
-        }
-
-        public void NavigateToHome()
-        {
             NavigateToDishes();
         }
     }

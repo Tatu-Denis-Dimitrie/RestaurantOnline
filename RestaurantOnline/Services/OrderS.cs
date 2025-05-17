@@ -4,6 +4,7 @@ using RestaurantOnline.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace RestaurantOnline.Services
 {
@@ -35,7 +36,10 @@ namespace RestaurantOnline.Services
 
         public async Task<ObservableCollection<Order>> GetComenziUtilizatorAsync(int idUtilizator)
         {
+            // AsNoTracking() ne asigură că Entity Framework nu va face cache la entități
+            // și va încărca datele proaspete de fiecare dată
             var comenzi = await _context.Orders
+                .AsNoTracking()
                 .Where(c => c.UserId == idUtilizator)
                 .Include(c => c.OrderDishes)
                     .ThenInclude(cp => cp.Dish)
@@ -55,13 +59,27 @@ namespace RestaurantOnline.Services
 
         public async Task<bool> ActualizeazaStareComandaAsync(int idComanda, string stareNoua)
         {
-            var comanda = await _context.Orders.FindAsync(idComanda);
-            if (comanda == null)
-                return false;
-                
-            comanda.Status = stareNoua;
-            await _context.SaveChangesAsync();
-            return true;
+            try
+            {
+                // Verificăm dacă starea este una validă
+                string[] stariValide = { "inregistrata", "se_pregateste", "a plecat la client", "livrata", "anulata" };
+                if (!stariValide.Contains(stareNoua))
+                {
+                    throw new ArgumentException("Starea comenzii nu este validă.");
+                }
+
+                // Apelăm procedura stocată
+                var rowsAffected = await _context.Database
+                    .ExecuteSqlRawAsync("EXEC ActualizeazaStatusComanda @p0, @p1",
+                                        idComanda, stareNoua);
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Eroare la actualizarea comenzii: {ex.Message}");
+                throw;
+            }
         }
     }
 } 

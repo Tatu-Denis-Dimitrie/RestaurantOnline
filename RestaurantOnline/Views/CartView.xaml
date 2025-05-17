@@ -1,0 +1,158 @@
+<UserControl x:Class="RestaurantOnline.Views.CartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlu -->
+        <TextBlock Grid.Row="0" Text="Coș de cumpărături" 
+                   FontSize="24" FontWeight="Bold" Margin="20,10"/>
+        
+        <!-- Lista produselor din coș -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Gol dacă nu există produse -->
+                <TextBlock Grid.Row="0" 
+                           Text="Coșul dumneavoastră este gol" 
+                           FontSize="16" HorizontalAlignment="Center" 
+                           Margin="0,50,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CartItems.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                
+                <!-- Lista de produse -->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding CartItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" 
+                                    Padding="10" Margin="0,5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Imagine produs -->
+                                    <Border Grid.Column="0" Width="70" Height="70" 
+                                            Background="#F5F5F5" CornerRadius="4">
+                                        <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
+                                               Stretch="Uniform" Margin="5"/>
+                                    </Border>
+                                    
+                                    <!-- Detalii produs -->
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="{Binding Dish.Name, FallbackValue='Produs nedisponibil'}" 
+                                                   FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock Text="{Binding Dish.Category.Name, FallbackValue='Categorie necunoscută'}" 
+                                                   Foreground="#666" FontSize="12" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Preț unitar -->
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding Dish.Price, StringFormat={}{0:F2} lei, FallbackValue='0.00 lei'}" 
+                                               VerticalAlignment="Center" Margin="10,0"/>
+                                    
+                                    <!-- Cantitate -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" 
+                                                VerticalAlignment="Center" Margin="10,0">
+                                        <TextBlock Text="Cantitate: " VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Quantity, FallbackValue=1}" VerticalAlignment="Center" 
+                                                   FontWeight="Bold" Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Preț total și buton eliminare -->
+                                    <StackPanel Grid.Column="4" Margin="10,0">
+                                        <TextBlock Text="{Binding LineTotal, StringFormat={}{0:F2} lei, FallbackValue='0.00 lei'}" 
+                                                   FontWeight="Bold" Foreground="#2E7D32" 
+                                                   HorizontalAlignment="Right"/>
+                                        <Button Content="Elimină" Margin="0,5,0,0" 
+                                                Command="{Binding DataContext.RemoveFromCartCommand, 
+                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                CommandParameter="{Binding}" 
+                                                Foreground="White" Background="#e74c3c" 
+                                                Padding="5,2"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+        
+        <!-- Sumar comandă și butoane -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="20" Margin="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Sumar -->
+                <StackPanel Grid.Column="0">
+                    <!-- Subtotal (doar produsele) -->
+                    <TextBlock x:Name="SubtotalText" 
+                               Text="{Binding CartItems.Sum[LineTotal], StringFormat=Subtotal produse: {0:F2} lei}" 
+                               FontSize="14" Margin="0,0,0,5"/>
+                    
+                    <!-- Taxa de livrare -->
+                    <TextBlock Text="Taxă de livrare: 10.00 lei" 
+                               FontSize="14" Margin="0,0,0,10"/>
+                    
+                    <!-- Total cu tot cu livrare -->
+                    <TextBlock Text="{Binding TotalAmount, StringFormat=Total de plată: {0:F2} lei}" 
+                               FontSize="18" FontWeight="Bold" Foreground="#2E7D32"/>
+                    
+                    <!-- Notă informativă -->
+                    <TextBlock Text="* Taxa de livrare este inclusă în total" 
+                               FontSize="12" Foreground="#666" Margin="0,5,0,0"/>
+                </StackPanel>
+                
+                <!-- Butoane -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Continuă cumpărăturile" 
+                            Command="{Binding ContinueShoppingCommand}" 
+                            Margin="0,0,10,0" Padding="8,3"
+                            FontSize="12" Height="40"/>
+                    <Button Content="Finalizează comanda" 
+                            Command="{Binding PlaceOrderCommand}" 
+                            Background="#2E7D32" Foreground="White" 
+                            Padding="8,3" FontSize="12" Height="40"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl> 
