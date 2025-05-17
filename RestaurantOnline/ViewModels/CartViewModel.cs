@@ -59,7 +59,7 @@ namespace RestaurantOnline.ViewModels
         public ICommand ContinueShoppingCommand { get; }
         
         // Adaugă un preparat în coș
-        public void AddToCart(Dish dish, int quantity = 1)
+        public void AddToCart(Dish dish, int quantity = 1, bool showMessage = true)
         {
             if (dish == null) return;
             
@@ -79,8 +79,11 @@ namespace RestaurantOnline.ViewModels
             SaveCartToSession();
             CalculateTotalAmount();
             
-            MessageBox.Show($"Produsul '{dish.Name}' a fost adăugat în coș.", "Coș cumpărături", 
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            if (showMessage)
+            {
+                MessageBox.Show($"Produsul '{dish.Name}' a fost adăugat în coș.", "Coș cumpărături", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
         
         // Șterge un produs din coș
@@ -135,6 +138,32 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
+                // Verificăm stocul disponibil pentru fiecare produs
+                foreach (var item in CartItems)
+                {
+                    // Obținem detaliile actualizate ale preparatului
+                    var dish = await _dishService.GetByIdAsync(item.Dish.DishId);
+                    
+                    if (dish == null)
+                    {
+                        MessageBox.Show($"Preparatul '{item.Dish.Name}' nu mai este disponibil.", 
+                            "Produs indisponibil", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    
+                    // Calculăm cantitatea necesară pentru comanda curentă
+                    int cantitateNecesara = item.Quantity * dish.PortionSizeGrams;
+                    
+                    // Verificăm dacă avem suficient stoc
+                    if (dish.TotalQuantityGrams < cantitateNecesara)
+                    {
+                        int portiiDisponibile = dish.TotalQuantityGrams / dish.PortionSizeGrams;
+                        MessageBox.Show($"Ne pare rău, nu avem suficientă cantitate pentru '{dish.Name}'.\nCantitate disponibilă: {portiiDisponibile} porții.", 
+                            "Stoc insuficient", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+                
                 // Calculăm suma produselor
                 decimal productTotal = CartItems.Sum(item => item.Dish.Price * item.Quantity);
                 // Taxa fixă de livrare
@@ -167,6 +196,24 @@ namespace RestaurantOnline.ViewModels
                 
                 if (savedOrder != null)
                 {
+                    // Actualizăm stocul pentru fiecare produs
+                    foreach (var item in CartItems)
+                    {
+                        // Obținem preparatul din baza de date
+                        var dish = await _dishService.GetByIdAsync(item.Dish.DishId);
+                        if (dish != null)
+                        {
+                            // Calculăm cantitatea consumată
+                            int cantitateConsumata = item.Quantity * dish.PortionSizeGrams;
+                            
+                            // Actualizăm stocul
+                            dish.TotalQuantityGrams -= cantitateConsumata;
+                            
+                            // Salvăm modificările
+                            await _dishService.UpdateAsync(dish);
+                        }
+                    }
+                    
                     MessageBox.Show($"Comanda dumneavoastră a fost înregistrată cu succes.\nNumăr comandă: {savedOrder.OrderId}\nTotal: {finalAmount:F2} lei (inclusiv taxa de transport: {deliveryFee:F2} lei)", 
                         "Comandă plasată", MessageBoxButton.OK, MessageBoxImage.Information);
                     

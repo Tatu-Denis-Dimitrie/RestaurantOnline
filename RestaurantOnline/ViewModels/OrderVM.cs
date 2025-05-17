@@ -92,8 +92,8 @@ namespace RestaurantOnline.ViewModels
         public ICommand SchimbaStatusCommand { get; }
 
         private async void LoadComenzi()
-        {
-            IsLoading = true;
+            {
+                IsLoading = true;
             ErrorMessage = string.Empty;
 
             try

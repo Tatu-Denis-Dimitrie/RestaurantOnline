@@ -68,12 +68,37 @@ namespace RestaurantOnline.Services
                     throw new ArgumentException("Starea comenzii nu este validă.");
                 }
 
-                // Apelăm procedura stocată
-                var rowsAffected = await _context.Database
+                // Verificăm statusul curent înainte de actualizare (fără tracking)
+                var comandaExista = await _context.Orders
+                    .AsNoTracking()
+                    .AnyAsync(c => c.OrderId == idComanda);
+                
+                if (!comandaExista)
+                {
+                    throw new ArgumentException($"Comanda cu ID-ul {idComanda} nu există.");
+                }
+
+                // Apelăm procedura stocată (nu afectează tracking-ul)
+                await _context.Database
                     .ExecuteSqlRawAsync("EXEC ActualizeazaStatusComanda @p0, @p1",
                                         idComanda, stareNoua);
-
-                return rowsAffected > 0;
+                
+                // Detașăm toate entitățile urmărite pentru a evita conflictele
+                foreach (var entry in _context.ChangeTracker.Entries<Order>().ToList())
+                {
+                    if (entry.Entity.OrderId == idComanda)
+                    {
+                        entry.State = EntityState.Detached;
+                    }
+                }
+                
+                // Verificăm dacă statusul s-a actualizat cu adevărat, citind din nou comanda (fără tracking)
+                var comandaDupa = await _context.Orders
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c => c.OrderId == idComanda);
+                
+                // Dacă comanda există și statusul este cel dorit
+                return comandaDupa != null && comandaDupa.Status == stareNoua;
             }
             catch (Exception ex)
             {

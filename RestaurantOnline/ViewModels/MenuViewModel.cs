@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RestaurantOnline.ViewModels
 {
@@ -181,8 +182,58 @@ namespace RestaurantOnline.ViewModels
         {
             if (meniu == null) return;
             
-            MessageBox.Show($"Meniul '{meniu.Name}' a fost adăugat la comandă", "Informație",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                // Creăm o nouă instanță de CartViewModel pentru a adăuga preparatele din meniu
+                var orderService = ((App)Application.Current).ServiceProvider.GetService(typeof(OrderS)) as OrderS;
+                var dishService = ((App)Application.Current).ServiceProvider.GetService(typeof(DishS)) as DishS;
+                var mainViewModel = ((App)Application.Current).ServiceProvider.GetService(typeof(MainViewModel)) as MainViewModel;
+                
+                if (orderService != null && mainViewModel != null && dishService != null)
+                {
+                    // Obținem sau creăm coșul
+                    CartViewModel cartViewModel;
+                    
+                    // Verificăm dacă există deja o instanță de CartViewModel în proprietățile aplicației
+                    if (Application.Current.Properties.Contains("CartItems") && 
+                        Application.Current.Properties["CartItems"] is ObservableCollection<CartItem> existingItems)
+                    {
+                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
+                        cartViewModel.CartItems = existingItems;
+                    }
+                    else
+                    {
+                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
+                    }
+                    
+                    // Adăugăm fiecare preparat din meniu în coș, fără afișarea mesajelor
+                    int preparateAdaugate = 0;
+                    foreach (var menuDish in meniu.MenuDishes)
+                    {
+                        if (menuDish.Dish != null)
+                        {
+                            cartViewModel.AddToCart(menuDish.Dish, 1, false);
+                            preparateAdaugate++;
+                        }
+                    }
+                    
+                    // Salvăm instanța cart în Properties
+                    if (Application.Current.Properties.Contains("CartItems"))
+                    {
+                        Application.Current.Properties.Remove("CartItems");
+                    }
+                    Application.Current.Properties.Add("CartItems", cartViewModel.CartItems);
+                    
+                    // Afișăm un singur mesaj la final
+                    MessageBox.Show($"Meniul '{meniu.Name}' a fost adăugat în coș.\nAți adăugat {preparateAdaugate} preparate.", "Coș cumpărături", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Eroare la adăugarea în coș: {ex.Message}", "Eroare", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         
         private async void StergeMeniu(Menu? meniu)
