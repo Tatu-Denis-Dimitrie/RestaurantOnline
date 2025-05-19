@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
+using System.Linq;
 
 namespace RestaurantOnline.ViewModels
 {
@@ -116,15 +117,59 @@ namespace RestaurantOnline.ViewModels
             if (ComandaSelectata == null) return;
             
             var detalii = $"ID Comandă: {ComandaSelectata.OrderId}\n" +
-                          $"Client: {ComandaSelectata.User?.NumeComplet ?? "N/A"}\n" +
                           $"Data: {ComandaSelectata.OrderDate:dd/MM/yyyy HH:mm}\n" +
                           $"Status: {ComandaSelectata.Status}\n" +
                           $"Total: {ComandaSelectata.FinalAmount:F2} lei\n\n" +
-                          "Produse:\n";
+                          $"Informații Client:\n" +
+                          $"Nume: {ComandaSelectata.User?.NumeComplet ?? "N/A"}\n" +
+                          $"Email: {ComandaSelectata.User?.Email ?? "N/A"}\n" +
+                          $"Telefon: {ComandaSelectata.User?.Phone ?? "N/A"}\n" +
+                          $"Adresă livrare: {ComandaSelectata.User?.DeliveryAddress ?? "N/A"}\n\n" +
+                          "Produse comandate:\n";
             
-            foreach (var item in ComandaSelectata.OrderDishes)
+            // Grupăm produsele pe meniuri pentru o afișare mai clară
+            var menuGroups = ComandaSelectata.OrderDishes
+                .GroupBy(od => od.MenuId)
+                .ToList();
+            
+            // 1. Mai întâi produsele individuale (MenuId == null)
+            var individualProducts = menuGroups
+                .FirstOrDefault(g => g.Key == null);
+            
+            if (individualProducts != null)
             {
-                detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"}\n";
+                detalii += "Produse individuale:\n";
+                foreach (var item in individualProducts)
+                {
+                    detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"} - {item.Dish?.Price * item.Quantity:F2} lei\n";
+                }
+                detalii += "\n";
+            }
+            
+            // 2. Apoi produsele din meniuri, grupate pe meniuri
+            var menuProducts = menuGroups
+                .Where(g => g.Key.HasValue)
+                .ToList();
+            
+            if (menuProducts.Any())
+            {
+                foreach (var menuGroup in menuProducts)
+                {
+                    // Aflăm numele meniului din primul produs din grup
+                    var firstDish = menuGroup.FirstOrDefault();
+                    var menuId = menuGroup.Key;
+                    
+                    detalii += $"Meniu #{menuId}:\n";
+                    
+                    foreach (var item in menuGroup)
+                    {
+                        detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"} - {item.Dish?.Price * item.Quantity:F2} lei\n";
+                    }
+                    
+                    // Calculăm prețul total al meniului
+                    var menuTotal = menuGroup.Sum(item => item.Dish?.Price * item.Quantity ?? 0);
+                    detalii += $"Total meniu: {menuTotal:F2} lei\n\n";
+                }
             }
             
             MessageBox.Show(detalii, "Detalii Comandă", MessageBoxButton.OK, MessageBoxImage.Information);

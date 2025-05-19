@@ -150,46 +150,17 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
-                // Dacă există items salvate, le încărcăm
-                if (Application.Current.Properties.Contains("CartItems") && 
-                    Application.Current.Properties["CartItems"] is ObservableCollection<CartItem> savedItems)
-                {
-                    // Verifică și încarcă din nou preparatele pentru a asigura datele complete
-                    var updatedItems = new ObservableCollection<CartItem>();
-                    foreach (var item in savedItems)
-                    {
-                        if (item.Dish != null)
-                        {
-                            // Reîncarcă preparatul cu toate relațiile sale
-                            var completeDish = await _dishService.GetDetaliiPreparat(item.Dish.DishId);
-                            if (completeDish != null)
-                            {
-                                updatedItems.Add(new CartItem 
-                                { 
-                                    Dish = completeDish, 
-                                    Quantity = item.Quantity 
-                                });
-                            }
-                        }
-                    }
-                    
-                    cartViewModel.CartItems = updatedItems;
-                    
-                    // Actualizează items salvate
-                    Application.Current.Properties["CartItems"] = updatedItems;
-                }
+                // Forțăm reîncărcarea conținutului coșului
+                cartViewModel.RefreshCart();
+                
+                // Setăm view-ul curent
+                CurrentViewModel = cartViewModel;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Eroare la încărcarea coșului: {ex.Message}", 
-                    "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
-                    
-                // În caz de eroare, începem cu un coș gol
-                cartViewModel.CartItems = new ObservableCollection<CartItem>();
-                Application.Current.Properties["CartItems"] = cartViewModel.CartItems;
+                MessageBox.Show($"Eroare la încărcarea coșului: {ex.Message}", "Eroare", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
-            CurrentViewModel = cartViewModel;
         }
         
         private void Logout()

@@ -16,11 +16,34 @@ namespace RestaurantOnline.Services
 
         public override async Task<ObservableCollection<Order>> GetAllAsync()
         {
+            // Folosim AsNoTracking pentru a evita probleme de tracking
             var comenzi = await _context.Orders
+                .AsNoTracking()
                 .Include(c => c.User)
-                .Include(c => c.OrderDishes)
-                    .ThenInclude(cp => cp.Dish)
                 .ToListAsync();
+
+            // Pentru fiecare comandă, încărcăm manual OrderDishes
+            foreach (var comanda in comenzi)
+            {
+                var orderDishes = await _context.OrderDishes
+                    .AsNoTracking()
+                    .Where(od => od.OrderId == comanda.OrderId)
+                    .ToListAsync();
+
+                // Încărcăm detaliile pentru fiecare dish
+                foreach (var orderDish in orderDishes)
+                {
+                    var dish = await _context.Dishes
+                        .AsNoTracking()
+                        .Include(d => d.Category)
+                        .FirstOrDefaultAsync(d => d.DishId == orderDish.DishId);
+                        
+                    orderDish.Dish = dish;
+                }
+
+                // Adăugăm OrderDishes la comandă
+                comanda.OrderDishes = new ObservableCollection<OrderDish>(orderDishes);
+            }
 
             return new ObservableCollection<Order>(comenzi);
         }
@@ -37,72 +60,135 @@ namespace RestaurantOnline.Services
         public async Task<ObservableCollection<Order>> GetComenziUtilizatorAsync(int idUtilizator)
         {
             // AsNoTracking() ne asigură că Entity Framework nu va face cache la entități
-            // și va încărca datele proaspete de fiecare dată
             var comenzi = await _context.Orders
                 .AsNoTracking()
                 .Where(c => c.UserId == idUtilizator)
-                .Include(c => c.OrderDishes)
-                    .ThenInclude(cp => cp.Dish)
                 .ToListAsync();
+
+            // Pentru fiecare comandă, încărcăm manual OrderDishes
+            foreach (var comanda in comenzi)
+            {
+                var orderDishes = await _context.OrderDishes
+                    .AsNoTracking()
+                    .Where(od => od.OrderId == comanda.OrderId)
+                    .ToListAsync();
+
+                // Încărcăm detaliile pentru fiecare dish
+                foreach (var orderDish in orderDishes)
+                {
+                    var dish = await _context.Dishes
+                        .AsNoTracking()
+                        .Include(d => d.Category)
+                        .FirstOrDefaultAsync(d => d.DishId == orderDish.DishId);
+                        
+                    orderDish.Dish = dish;
+                }
+
+                // Adăugăm OrderDishes la comandă
+                comanda.OrderDishes = new ObservableCollection<OrderDish>(orderDishes);
+            }
 
             return new ObservableCollection<Order>(comenzi);
         }
 
         public async Task<Order> GetComandaDetaliiAsync(int idComanda)
         {
-            return await _context.Orders
+            // Folosim AsNoTracking pentru a evita probleme de tracking și SQL direct pentru
+            // a încărca OrderDishes fără a fi afectați de problemele de relații ale EF
+            var comanda = await _context.Orders
+                .AsNoTracking()
                 .Include(c => c.User)
-                .Include(c => c.OrderDishes)
-                    .ThenInclude(cp => cp.Dish)
                 .FirstOrDefaultAsync(c => c.OrderId == idComanda);
+                
+            if (comanda != null)
+            {
+                // Încărcăm manual OrderDishes pentru a ne asigura că toate sunt incluse
+                var orderDishes = await _context.OrderDishes
+                    .AsNoTracking()
+                    .Where(od => od.OrderId == idComanda)
+                    .ToListAsync();
+                    
+                // Încărcăm detaliile pentru fiecare dish
+                foreach (var orderDish in orderDishes)
+                {
+                    var dish = await _context.Dishes
+                        .AsNoTracking()
+                        .Include(d => d.Category)
+                        .Include(d => d.Photos)
+                        .FirstOrDefaultAsync(d => d.DishId == orderDish.DishId);
+                        
+                    orderDish.Dish = dish;
+                }
+                
+                // Adăugăm OrderDishes la comandă
+                comanda.OrderDishes = new ObservableCollection<OrderDish>(orderDishes);
+            }
+            
+            return comanda;
         }
 
         public async Task<bool> ActualizeazaStareComandaAsync(int idComanda, string stareNoua)
         {
             try
             {
-                // Verificăm dacă starea este una validă
-                string[] stariValide = { "inregistrata", "se_pregateste", "a plecat la client", "livrata", "anulata" };
-                if (!stariValide.Contains(stareNoua))
-                {
-                    throw new ArgumentException("Starea comenzii nu este validă.");
-                }
-
-                // Verificăm statusul curent înainte de actualizare (fără tracking)
-                var comandaExista = await _context.Orders
-                    .AsNoTracking()
-                    .AnyAsync(c => c.OrderId == idComanda);
-                
-                if (!comandaExista)
-                {
-                    throw new ArgumentException($"Comanda cu ID-ul {idComanda} nu există.");
-                }
-
-                // Apelăm procedura stocată (nu afectează tracking-ul)
-                await _context.Database
-                    .ExecuteSqlRawAsync("EXEC ActualizeazaStatusComanda @p0, @p1",
-                                        idComanda, stareNoua);
-                
-                // Detașăm toate entitățile urmărite pentru a evita conflictele
-                foreach (var entry in _context.ChangeTracker.Entries<Order>().ToList())
-                {
-                    if (entry.Entity.OrderId == idComanda)
-                    {
-                        entry.State = EntityState.Detached;
-                    }
-                }
-                
-                // Verificăm dacă statusul s-a actualizat cu adevărat, citind din nou comanda (fără tracking)
-                var comandaDupa = await _context.Orders
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(c => c.OrderId == idComanda);
-                
-                // Dacă comanda există și statusul este cel dorit
-                return comandaDupa != null && comandaDupa.Status == stareNoua;
+                // Folosim procedura stocată pentru toate actualizările de status
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC UpdateOrderStatus @OrderId, @NewStatus",
+                    new Microsoft.Data.SqlClient.SqlParameter("@OrderId", idComanda),
+                    new Microsoft.Data.SqlClient.SqlParameter("@NewStatus", stareNoua));
+                return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Eroare la actualizarea comenzii: {ex.Message}");
+                // Logging-ul excepției
+                System.Diagnostics.Debug.WriteLine($"Eroare la actualizarea stării comenzii: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                // Re-aruncăm excepția pentru a fi gestionată de nivelul superior
+                throw;
+            }
+        }
+        
+        public async Task<OrderDish> AddOrderDishAsync(OrderDish orderDish)
+        {
+            try
+            {
+                // Vom folosi contextul existent, dar în mod diferit
+                // Dezactivăm detectarea schimbărilor pentru performanță
+                _context.ChangeTracker.AutoDetectChangesEnabled = false;
+                // Curățăm tracking-ul
+                _context.ChangeTracker.Clear();
+                
+                // Creăm un nou OrderDish detașat de alte tracked entities
+                var newOrderDish = new OrderDish
+                {
+                    OrderId = orderDish.OrderId,
+                    DishId = orderDish.DishId,
+                    Quantity = orderDish.Quantity,
+                    MenuId = orderDish.MenuId
+                };
+                
+                // Adăugăm entitatea ca nouă
+                await _context.OrderDishes.AddAsync(newOrderDish);
+                
+                // Salvăm schimbările
+                await _context.SaveChangesAsync();
+                
+                // Reactivăm detectarea automată a schimbărilor
+                _context.ChangeTracker.AutoDetectChangesEnabled = true;
+                
+                return orderDish;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Eroare la adăugarea OrderDish: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
                 throw;
             }
         }

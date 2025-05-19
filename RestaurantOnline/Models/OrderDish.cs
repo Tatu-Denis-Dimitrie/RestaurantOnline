@@ -9,6 +9,7 @@ namespace RestaurantOnline.Models
         private int _orderId;
         private int _dishId;
         private int _quantity;
+        private int? _menuId;
         private Order _order;
         private Dish _dish;
 
@@ -34,6 +35,12 @@ namespace RestaurantOnline.Models
         {
             get => _quantity;
             set => SetProperty(ref _quantity, value);
+        }
+
+        public int? MenuId
+        {
+            get => _menuId;
+            set => SetProperty(ref _menuId, value);
         }
 
         [ForeignKey("OrderId")]

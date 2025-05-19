@@ -125,7 +125,8 @@
                                             RelativeSource={RelativeSource AncestorType=ItemsControl}, 
                                             Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
-                                    <Button Content="Adaugă" Background="#2E7D32" Foreground="White" 
+                                    <!-- Buton de adăugare în coș -->
+                                    <Button Content="Adaugă în coș" Background="#2E7D32" Foreground="White" 
                                             Command="{Binding DataContext.AdaugaLaComandaCommand, 
                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                             CommandParameter="{Binding}"/>

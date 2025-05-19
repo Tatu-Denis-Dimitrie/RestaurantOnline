@@ -38,11 +38,10 @@ namespace RestaurantOnline.ViewModels
             
             SearchCommand = new RelayCommand(_ => LoadMeniuri());
             DetaliiCommand = new RelayCommand(m => ShowDetalii(m as Menu));
-            AdaugaLaComandaCommand = new RelayCommand(m => AdaugaLaComanda(m as Menu));
             StergeMeniuCommand = new RelayCommand(m => StergeMeniu(m as Menu), m => _isAngajat);
+            AdaugaLaComandaCommand = new RelayCommand(m => AdaugaLaComanda(m as Menu));
             
-            LoadCategorii();
-            LoadMeniuri();
+            LoadCategoriiAndMeniuri();
         }
         
         public ObservableCollection<Menu> Meniuri
@@ -72,7 +71,13 @@ namespace RestaurantOnline.ViewModels
         public string SearchTerm
         {
             get => _searchTerm;
-            set => SetProperty(ref _searchTerm, value);
+            set
+            {
+                if (SetProperty(ref _searchTerm, value))
+                {
+                    LoadMeniuri();
+                }
+            }
         }
         
         public string ErrorMessage
@@ -95,29 +100,41 @@ namespace RestaurantOnline.ViewModels
         
         public ICommand SearchCommand { get; }
         public ICommand DetaliiCommand { get; }
-        public ICommand AdaugaLaComandaCommand { get; }
         public ICommand StergeMeniuCommand { get; }
+        public ICommand AdaugaLaComandaCommand { get; }
         
-        private async void LoadCategorii()
+        private async void LoadCategoriiAndMeniuri()
         {
             try
             {
+                IsLoading = true;
                 var categorii = await _categorieService.GetAllAsync();
-                
-                var toateCategoriile = new Category { Name = "Toate categoriile" };
-                Categorii.Clear();
-                Categorii.Add(toateCategoriile);
-                
-                foreach (var categorie in categorii)
+                await _dispatcher.InvokeAsync(() =>
                 {
-                    Categorii.Add(categorie);
-                }
-                
-                CategorieSelectata = toateCategoriile;
+                    Categorii.Clear();
+                    foreach (var categorie in categorii)
+                    {
+                        Categorii.Add(categorie);
+                    }
+                });
+
+                var meniuri = await _menuService.GetAllAsync();
+                await _dispatcher.InvokeAsync(() =>
+                {
+                    Meniuri.Clear();
+                    foreach (var meniu in meniuri)
+                    {
+                        Meniuri.Add(meniu);
+                    }
+                });
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea categoriilor: {ex.Message}";
+                ErrorMessage = $"Eroare la încărcarea datelor: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
         
@@ -125,31 +142,40 @@ namespace RestaurantOnline.ViewModels
         {
             if (IsLoading) return;
             
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
+            lock (_lockObject)
+            {
+                if (IsLoading) return;
+                IsLoading = true;
+            }
+            
             try
             {
-                ObservableCollection<Menu> rezultat = new ObservableCollection<Menu>();
-
-                if (!string.IsNullOrWhiteSpace(_searchTerm))
+                var meniuri = await _menuService.GetAllAsync();
+                
+                await _dispatcher.InvokeAsync(() =>
                 {
-                    var allMenus = await _menuService.GetAllAsync();
-                    var searchResults = allMenus.Where(m => m.Name.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
-                    rezultat = new ObservableCollection<Menu>(searchResults);
-                }
-                else if (_categorieSelectata != null && _categorieSelectata.CategoryId > 0)
-                {
-                    var allMenus = await _menuService.GetAllAsync();
-                    var filteredMenus = allMenus.Where(m => m.CategoryId == _categorieSelectata.CategoryId).ToList();
-                    rezultat = new ObservableCollection<Menu>(filteredMenus);
-                }
-                else
-                {
-                    rezultat = await _menuService.GetAllAsync();
-                }
-
-                Meniuri = rezultat;
+                    Meniuri.Clear();
+                    
+                    var meniuriFiltrate = meniuri.AsQueryable();
+                    
+                    if (CategorieSelectata != null)
+                    {
+                        meniuriFiltrate = meniuriFiltrate.Where(m => m.CategoryId == CategorieSelectata.CategoryId);
+                    }
+                    
+                    if (!string.IsNullOrWhiteSpace(SearchTerm))
+                    {
+                        var searchTermLower = SearchTerm.ToLower();
+                        meniuriFiltrate = meniuriFiltrate.Where(m => 
+                            m.Name.ToLower().Contains(searchTermLower) ||
+                            m.Category.Name.ToLower().Contains(searchTermLower));
+                    }
+                    
+                    foreach (var meniu in meniuriFiltrate)
+                    {
+                        Meniuri.Add(meniu);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -178,99 +204,66 @@ namespace RestaurantOnline.ViewModels
             }
         }
         
-        private void AdaugaLaComanda(Menu? meniu)
-        {
-            if (meniu == null) return;
-            
-            try
-            {
-                // Creăm o nouă instanță de CartViewModel pentru a adăuga preparatele din meniu
-                var orderService = ((App)Application.Current).ServiceProvider.GetService(typeof(OrderS)) as OrderS;
-                var dishService = ((App)Application.Current).ServiceProvider.GetService(typeof(DishS)) as DishS;
-                var mainViewModel = ((App)Application.Current).ServiceProvider.GetService(typeof(MainViewModel)) as MainViewModel;
-                
-                if (orderService != null && mainViewModel != null && dishService != null)
-                {
-                    // Obținem sau creăm coșul
-                    CartViewModel cartViewModel;
-                    
-                    // Verificăm dacă există deja o instanță de CartViewModel în proprietățile aplicației
-                    if (Application.Current.Properties.Contains("CartItems") && 
-                        Application.Current.Properties["CartItems"] is ObservableCollection<CartItem> existingItems)
-                    {
-                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
-                        cartViewModel.CartItems = existingItems;
-                    }
-                    else
-                    {
-                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
-                    }
-                    
-                    // Adăugăm fiecare preparat din meniu în coș, fără afișarea mesajelor
-                    int preparateAdaugate = 0;
-                    foreach (var menuDish in meniu.MenuDishes)
-                    {
-                        if (menuDish.Dish != null)
-                        {
-                            cartViewModel.AddToCart(menuDish.Dish, 1, false);
-                            preparateAdaugate++;
-                        }
-                    }
-                    
-                    // Salvăm instanța cart în Properties
-                    if (Application.Current.Properties.Contains("CartItems"))
-                    {
-                        Application.Current.Properties.Remove("CartItems");
-                    }
-                    Application.Current.Properties.Add("CartItems", cartViewModel.CartItems);
-                    
-                    // Afișăm un singur mesaj la final
-                    MessageBox.Show($"Meniul '{meniu.Name}' a fost adăugat în coș.\nAți adăugat {preparateAdaugate} preparate.", "Coș cumpărături", 
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Eroare la adăugarea în coș: {ex.Message}", "Eroare", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        
         private async void StergeMeniu(Menu? meniu)
         {
             if (meniu == null) return;
             
             var result = MessageBox.Show(
-                $"Ești sigur că dorești să ștergi meniul '{meniu.Name}'?", 
+                $"Sigur doriți să ștergeți meniul '{meniu.Name}'?",
                 "Confirmare ștergere",
-                MessageBoxButton.YesNo, 
+                MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
-                
+            
             if (result == MessageBoxResult.Yes)
             {
                 try
                 {
-                    var success = await _menuService.DeleteAsync(meniu.MenuId);
-                    
-                    if (success)
-                    {
-                        MessageBox.Show("Meniul a fost șters cu succes.", "Succes", 
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                            
-                        // Reîncărcăm lista de meniuri
-                        LoadMeniuri();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Nu s-a putut șterge meniul.", "Eroare", 
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    await _menuService.DeleteAsync(meniu.MenuId);
+                    Meniuri.Remove(meniu);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Eroare la ștergerea meniului: {ex.Message}", "Eroare", 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+        
+        private void AdaugaLaComanda(Menu? meniu)
+        {
+            if (meniu == null) return;
+            
+            try
+            {
+                var orderService = ((App)Application.Current).ServiceProvider.GetService(typeof(OrderS)) as OrderS;
+                var dishService = ((App)Application.Current).ServiceProvider.GetService(typeof(DishS)) as DishS;
+                var mainViewModel = ((App)Application.Current).ServiceProvider.GetService(typeof(MainViewModel)) as MainViewModel;
+                
+                if (orderService != null && dishService != null && mainViewModel != null)
+                {
+                    CartViewModel cartViewModel;
+                    
+                    if (App.Current.Properties.Contains("CartItems") && 
+                        App.Current.Properties["CartItems"] is ObservableCollection<CartItem> savedCart)
+                    {
+                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
+                        cartViewModel.AddMenuToCart(meniu, 1, true);
+                        
+                        App.Current.Properties["CartItems"] = cartViewModel.CartItems;
+                    }
+                    else
+                    {
+                        cartViewModel = new CartViewModel(orderService, dishService, mainViewModel);
+                        cartViewModel.AddMenuToCart(meniu, 1, true);
+                        
+                        App.Current.Properties["CartItems"] = cartViewModel.CartItems;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Eroare la adăugarea în coș: {ex.Message}", "Eroare", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <converters:ImagePathConverter x:Key="ImagePathConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
     </UserControl.Resources>
     
     <Grid>
@@ -68,43 +69,83 @@
                                     <!-- Imagine produs -->
                                     <Border Grid.Column="0" Width="70" Height="70" 
                                             Background="#F5F5F5" CornerRadius="4">
-                                        <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
-                                               Stretch="Uniform" Margin="5"/>
+                                        <Grid>
+                                            <!-- Imagine preparat individual -->
+                                            <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
+                                                   Stretch="Uniform" Margin="5"
+                                                   Visibility="{Binding IsMenuDish, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                                            
+                                            <!-- Imagine primă fotografie a primului preparat din meniu -->
+                                            <Image Source="{Binding Menu.MenuDishes[0].Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
+                                                   Stretch="Uniform" Margin="5"
+                                                   Visibility="{Binding IsMenuDish, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        </Grid>
                                     </Border>
                                     
                                     <!-- Detalii produs -->
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="{Binding Dish.Name, FallbackValue='Produs nedisponibil'}" 
-                                                   FontWeight="SemiBold" FontSize="14"/>
-                                        <TextBlock Text="{Binding Dish.Category.Name, FallbackValue='Categorie necunoscută'}" 
-                                                   Foreground="#666" FontSize="12" Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontWeight="Bold" FontSize="16"/>
+                                        
+                                        <!-- Detalii preparat individual -->
+                                        <StackPanel Visibility="{Binding IsMenuDish, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding Dish.Category.Name}" 
+                                                       Foreground="#666666" Margin="0,5,0,0"/>
+                                            <TextBlock Text="{Binding Dish.Description}" 
+                                                       TextTrimming="CharacterEllipsis" 
+                                                       MaxHeight="40"/>
+                                        </StackPanel>
+                                        
+                                        <!-- Detalii meniu -->
+                                        <StackPanel Visibility="{Binding IsMenuDish, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding Menu.Category.Name}" 
+                                                       Foreground="#666666" Margin="0,5,0,0"/>
+                                            <TextBlock Text="{Binding Menu.MenuDishes.Count, StringFormat=Conține {0} preparate}" 
+                                                       Foreground="#666666" Margin="0,5,0,0"/>
+                                        </StackPanel>
                                     </StackPanel>
                                     
-                                    <!-- Preț unitar -->
-                                    <TextBlock Grid.Column="2" 
-                                               Text="{Binding Dish.Price, StringFormat={}{0:F2} lei, FallbackValue='0.00 lei'}" 
-                                               VerticalAlignment="Center" Margin="10,0"/>
+                                    <!-- Detalii cantitate și preț în Grid separat -->
+                                    <Grid Grid.Column="2" HorizontalAlignment="Right" Margin="10,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                                            <TextBlock Text="Cantitate:" HorizontalAlignment="Right" 
+                                                       FontSize="12" Foreground="#666666"/>
+                                            <TextBlock Text="{Binding Quantity}" HorizontalAlignment="Center" 
+                                                       FontWeight="SemiBold" FontSize="14"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="2" Orientation="Vertical">
+                                            <TextBlock Text="Preț unitar:" HorizontalAlignment="Right" 
+                                                       FontSize="12" Foreground="#666666"/>
+                                            <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2} lei}" 
+                                                       HorizontalAlignment="Right" FontWeight="SemiBold" 
+                                                       FontSize="14"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="4" Orientation="Vertical">
+                                            <TextBlock Text="Total:" HorizontalAlignment="Right" 
+                                                       FontSize="12" Foreground="#666666"/>
+                                            <TextBlock Text="{Binding LineTotal, StringFormat={}{0:F2} lei}" 
+                                                       HorizontalAlignment="Right" FontWeight="Bold" 
+                                                       FontSize="14" Foreground="#2E7D32"/>
+                                        </StackPanel>
+                                    </Grid>
                                     
-                                    <!-- Cantitate -->
-                                    <StackPanel Grid.Column="3" Orientation="Horizontal" 
-                                                VerticalAlignment="Center" Margin="10,0">
-                                        <TextBlock Text="Cantitate: " VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Quantity, FallbackValue=1}" VerticalAlignment="Center" 
-                                                   FontWeight="Bold" Margin="5,0,0,0"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Preț total și buton eliminare -->
-                                    <StackPanel Grid.Column="4" Margin="10,0">
-                                        <TextBlock Text="{Binding LineTotal, StringFormat={}{0:F2} lei, FallbackValue='0.00 lei'}" 
-                                                   FontWeight="Bold" Foreground="#2E7D32" 
-                                                   HorizontalAlignment="Right"/>
-                                        <Button Content="Elimină" Margin="0,5,0,0" 
-                                                Command="{Binding DataContext.RemoveFromCartCommand, 
-                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                                CommandParameter="{Binding}" 
-                                                Foreground="White" Background="#e74c3c" 
-                                                Padding="5,2"/>
-                                    </StackPanel>
+                                    <!-- Buton eliminare -->
+                                    <Button Grid.Column="3" Content="Elimină" 
+                                            Command="{Binding DataContext.RemoveFromCartCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                            CommandParameter="{Binding}" 
+                                            Foreground="White" Background="#e74c3c" 
+                                            Padding="5,2" Margin="10,0" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
