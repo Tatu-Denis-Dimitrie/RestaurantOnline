@@ -16,11 +16,14 @@ namespace RestaurantOnline.ViewModels
         private readonly DishS _preparatService;
         private readonly UserS _utilizatorService;
         private ObservableCollection<Order> _comenzi;
+        private ObservableCollection<Order> _comenziAfisate;
         private Order _comandaSelectata;
         private bool _isLoading;
         private string _errorMessage;
         private string _selectedStatus;
         private readonly List<string> _availableStatuses;
+        private bool _arataDoarComenziActive;
+        private string _filtruStatus;
 
         public ComenziViewModel(
             OrderS comandaService, 
@@ -31,6 +34,7 @@ namespace RestaurantOnline.ViewModels
             _preparatService = preparatService;
             _utilizatorService = utilizatorService;
             _comenzi = new ObservableCollection<Order>();
+            _comenziAfisate = new ObservableCollection<Order>();
             
             // Lista statusurilor disponibile
             _availableStatuses = new List<string> 
@@ -42,10 +46,14 @@ namespace RestaurantOnline.ViewModels
                 "anulata"
             };
             
+            // Inițializăm comenzile
             RefreshCommand = new RelayCommand(_ => LoadComenzi());
             DetaliiComandaCommand = new RelayCommand(_ => DetaliiComanda());
             SchimbaStatusCommand = new RelayCommand(_ => SchimbaStatusComanda(), _ => ComandaSelectata != null);
+            ArataComenziActiveCommand = new RelayCommand(_ => SetArataDoarComenziActive(true));
+            ArataComenziToateCommand = new RelayCommand(_ => SetArataDoarComenziActive(false));
             
+            _arataDoarComenziActive = false;
             LoadComenzi();
         }
 
@@ -53,6 +61,12 @@ namespace RestaurantOnline.ViewModels
         {
             get => _comenzi;
             set => SetProperty(ref _comenzi, value);
+        }
+
+        public ObservableCollection<Order> ComenziAfisate
+        {
+            get => _comenziAfisate;
+            set => SetProperty(ref _comenziAfisate, value);
         }
 
         public Order ComandaSelectata
@@ -88,19 +102,33 @@ namespace RestaurantOnline.ViewModels
             set => SetProperty(ref _errorMessage, value);
         }
 
+        public bool ArataDoarComenziActive
+        {
+            get => _arataDoarComenziActive;
+            private set => SetProperty(ref _arataDoarComenziActive, value);
+        }
+
         public ICommand RefreshCommand { get; }
         public ICommand DetaliiComandaCommand { get; }
         public ICommand SchimbaStatusCommand { get; }
+        public ICommand ArataComenziActiveCommand { get; }
+        public ICommand ArataComenziToateCommand { get; }
 
         private async void LoadComenzi()
-            {
-                IsLoading = true;
+        {
+            IsLoading = true;
             ErrorMessage = string.Empty;
 
             try
             {
                 var comenzi = await _comandaService.GetAllAsync();
-                Comenzi = comenzi;
+                
+                // Sortăm comenzile în ordine descrescătoare după dată și oră
+                var comenziSortate = comenzi.OrderByDescending(c => c.OrderDate).ToList();
+                Comenzi = new ObservableCollection<Order>(comenziSortate);
+                
+                // Actualizăm lista afișată pe baza filtrului curent
+                ActualizeazaComenziAfisate();
             }
             catch (System.Exception ex)
             {
@@ -112,12 +140,37 @@ namespace RestaurantOnline.ViewModels
             }
         }
 
+        private void SetArataDoarComenziActive(bool value)
+        {
+            ArataDoarComenziActive = value;
+            ActualizeazaComenziAfisate();
+        }
+
+        private void ActualizeazaComenziAfisate()
+        {
+            if (ArataDoarComenziActive)
+            {
+                // Comenzile active sunt cele care nu au statusul "livrata" sau "anulata"
+                var comenziActive = Comenzi.Where(c => 
+                    c.Status != "livrata" && 
+                    c.Status != "anulata").ToList();
+                
+                ComenziAfisate = new ObservableCollection<Order>(comenziActive);
+            }
+            else
+            {
+                // Afișăm toate comenzile (sortate deja descrescător după dată)
+                ComenziAfisate = new ObservableCollection<Order>(Comenzi);
+            }
+        }
+
         private void DetaliiComanda()
         {
             if (ComandaSelectata == null) return;
             
             var detalii = $"ID Comandă: {ComandaSelectata.OrderId}\n" +
                           $"Data: {ComandaSelectata.OrderDate:dd/MM/yyyy HH:mm}\n" +
+                          $"Estimare livrare: {ComandaSelectata.EstimatedDeliveryTime:dd/MM/yyyy HH:mm}\n" +
                           $"Status: {ComandaSelectata.Status}\n" +
                           $"Total: {ComandaSelectata.FinalAmount:F2} lei\n\n" +
                           $"Informații Client:\n" +
@@ -153,28 +206,24 @@ namespace RestaurantOnline.ViewModels
             
             if (menuProducts.Any())
             {
+                detalii += "Produse din meniuri:\n";
                 foreach (var menuGroup in menuProducts)
                 {
-                    // Aflăm numele meniului din primul produs din grup
-                    var firstDish = menuGroup.FirstOrDefault();
-                    var menuId = menuGroup.Key;
-                    
+                    var menuId = menuGroup.Key.Value;
+                    // TODO: Încărca numele meniului din baza de date
                     detalii += $"Meniu #{menuId}:\n";
                     
                     foreach (var item in menuGroup)
                     {
-                        detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"} - {item.Dish?.Price * item.Quantity:F2} lei\n";
+                        detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"}\n";
                     }
-                    
-                    // Calculăm prețul total al meniului
-                    var menuTotal = menuGroup.Sum(item => item.Dish?.Price * item.Quantity ?? 0);
-                    detalii += $"Total meniu: {menuTotal:F2} lei\n\n";
+                    detalii += "\n";
                 }
             }
             
-            MessageBox.Show(detalii, "Detalii Comandă", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(detalii, $"Detalii Comandă #{ComandaSelectata.OrderId}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        
+
         private async void SchimbaStatusComanda()
         {
             if (ComandaSelectata == null || string.IsNullOrEmpty(SelectedStatus)) return;
@@ -220,7 +269,6 @@ namespace RestaurantOnline.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la actualizarea statusului comenzii: {ex.Message}";
                 MessageBox.Show(
                     $"Eroare la actualizarea statusului comenzii: {ex.Message}",
                     "Eroare",

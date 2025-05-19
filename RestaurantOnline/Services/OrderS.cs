@@ -16,13 +16,11 @@ namespace RestaurantOnline.Services
 
         public override async Task<ObservableCollection<Order>> GetAllAsync()
         {
-            // Folosim AsNoTracking pentru a evita probleme de tracking
             var comenzi = await _context.Orders
                 .AsNoTracking()
                 .Include(c => c.User)
                 .ToListAsync();
 
-            // Pentru fiecare comandă, încărcăm manual OrderDishes
             foreach (var comanda in comenzi)
             {
                 var orderDishes = await _context.OrderDishes
@@ -30,7 +28,6 @@ namespace RestaurantOnline.Services
                     .Where(od => od.OrderId == comanda.OrderId)
                     .ToListAsync();
 
-                // Încărcăm detaliile pentru fiecare dish
                 foreach (var orderDish in orderDishes)
                 {
                     var dish = await _context.Dishes
@@ -41,7 +38,6 @@ namespace RestaurantOnline.Services
                     orderDish.Dish = dish;
                 }
 
-                // Adăugăm OrderDishes la comandă
                 comanda.OrderDishes = new ObservableCollection<OrderDish>(orderDishes);
             }
 
@@ -59,13 +55,11 @@ namespace RestaurantOnline.Services
 
         public async Task<ObservableCollection<Order>> GetComenziUtilizatorAsync(int idUtilizator)
         {
-            // AsNoTracking() ne asigură că Entity Framework nu va face cache la entități
             var comenzi = await _context.Orders
                 .AsNoTracking()
                 .Where(c => c.UserId == idUtilizator)
                 .ToListAsync();
 
-            // Pentru fiecare comandă, încărcăm manual OrderDishes
             foreach (var comanda in comenzi)
             {
                 var orderDishes = await _context.OrderDishes

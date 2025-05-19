@@ -1,0 +1,89 @@
+<UserControl x:Class="RestaurantOnline.Views.StockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantOnline.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlul -->
+        <TextBlock Grid.Row="0" Text="Gestiune Stoc Preparate" 
+                   FontSize="22" FontWeight="Bold" Margin="10,10,10,5"/>
+        
+        <!-- Informații prag stoc -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0,10,10">
+            <TextBlock Text="Prag stoc minim:" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding StockThreshold}" Margin="5,0,0,0" />
+            <TextBlock Text="g" Margin="2,0,0,0" />
+            <TextBlock Text=" (valori sub acest prag sunt afișate cu roșu)" Margin="5,0,0,0" Foreground="#555" />
+        </StackPanel>
+        
+        <!-- Lista cu stoc -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Preparate}" 
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  AlternatingRowBackground="#F5F5F5"
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                  BorderThickness="1" BorderBrush="#DDD"
+                  Margin="10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding DishId}" Width="Auto"/>
+                <DataGridTextColumn Header="Nume Preparat" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Categorie" Binding="{Binding Category.Name}" Width="120"/>
+                <DataGridTextColumn Header="Preț (lei)" Binding="{Binding Price}" Width="90"/>
+                <DataGridTextColumn Header="Cantitate Porție (g)" Binding="{Binding PortionSizeGrams}" Width="130"/>
+                <DataGridTemplateColumn Header="Stoc Total (g)" Width="130">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TotalQuantityGrams}" 
+                                       Foreground="{Binding TotalQuantityGrams, Converter={StaticResource StareToColorConverter}, ConverterParameter=stocklimit}"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <!-- Bara de jos -->
+        <Grid Grid.Row="3" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Mesaj de eroare -->
+            <TextBlock Grid.Column="0" Text="{Binding ErrorMessage}" 
+                       Foreground="Red" VerticalAlignment="Center" 
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                       
+            <!-- Buton de reîmprospătare -->
+            <Button Grid.Column="1" Content="Reîmprospătează" 
+                    Command="{Binding RefreshCommand}"
+                    Width="120" Height="30"/>
+        </Grid>
+        
+        <!-- Indicator de încărcare -->
+        <Border Grid.Row="0" Grid.RowSpan="4" 
+                Background="#80000000" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Se încarcă..." Foreground="White" FontSize="16" Margin="0,0,0,10"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="20"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl> 

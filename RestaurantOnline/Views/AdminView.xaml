@@ -1,0 +1,44 @@
+<UserControl x:Class="RestaurantOnline.Views.AdminView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantOnline.Views"
+             xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlul paginii -->
+        <TextBlock Grid.Row="0" Text="Panou Administrare" 
+                   FontSize="24" FontWeight="Bold" Margin="20,20,20,10"/>
+        
+        <!-- Tab-uri pentru opțiuni administrative -->
+        <TabControl Grid.Row="1" Grid.RowSpan="2" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}" Margin="10">
+            <TabItem Header="Adaugă Preparat">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Comenzi">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Utilizatori">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Categorii">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Alergeni">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Stock">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl> 

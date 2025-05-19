@@ -2,7 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:RestaurantOnline"
-             xmlns:converters="clr-namespace:RestaurantOnline.Converters">
+             xmlns:converters="clr-namespace:RestaurantOnline.Converters"
+             xmlns:viewmodels="clr-namespace:RestaurantOnline.ViewModels"
+             xmlns:views="clr-namespace:RestaurantOnline.Views">
     <Application.Resources>
          <ResourceDictionary>
              <!-- Convertori universali -->
@@ -20,6 +22,11 @@
              <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
              <converters:UniversalTextConverter x:Key="BoolToTextConverter"/>
              <converters:UniversalTextConverter x:Key="NullToTextConverter"/>
+             
+             <!-- DataTemplates pentru ViewModels -->
+             <DataTemplate DataType="{x:Type viewmodels:StockViewModel}">
+                 <views:StockView />
+             </DataTemplate>
          </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -40,6 +40,7 @@ namespace RestaurantOnline.ViewModels
             NavigateToRegisterCommand = new RelayCommand(_ => NavigateToRegister());
             NavigateToMyAccountCommand = new RelayCommand(_ => NavigateToMyAccount());
             NavigateToAddDishCommand = new RelayCommand(_ => NavigateToAddDish());
+            NavigateToAdminCommand = new RelayCommand(_ => NavigateToAdmin());
             NavigateToMenusCommand = new RelayCommand(_ => NavigateToMenus());
             NavigateToCartCommand = new RelayCommand(_ => NavigateToCart());
             LogoutCommand = new RelayCommand(_ => Logout());
@@ -93,6 +94,7 @@ namespace RestaurantOnline.ViewModels
         public ICommand NavigateToRegisterCommand { get; }
         public ICommand NavigateToMyAccountCommand { get; }
         public ICommand NavigateToAddDishCommand { get; }
+        public ICommand NavigateToAdminCommand { get; }
         public ICommand NavigateToMenusCommand { get; }
         public ICommand NavigateToCartCommand { get; }
         public ICommand LogoutCommand { get; }
@@ -142,6 +144,11 @@ namespace RestaurantOnline.ViewModels
         private void NavigateToAddDish()
         {
             CurrentViewModel = new AddDishViewModel(_dishService, _categoryService, _allergenService, this);
+        }
+        
+        private void NavigateToAdmin()
+        {
+            CurrentViewModel = new AdminViewModel(_dishService, _categoryService, _allergenService, _userService, _orderService, this);
         }
         
         private async void NavigateToCart()

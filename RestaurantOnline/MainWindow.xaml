@@ -26,6 +26,15 @@
         <DataTemplate DataType="{x:Type viewmodels:AddDishViewModel}">
             <views:AddDishView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AdminViewModel}">
+            <views:AdminView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:CategoryViewModel}">
+            <views:CategoryView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AllergenViewModel}">
+            <views:AllergenView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:MenuViewModel}">
             <views:MenuView />
         </DataTemplate>
@@ -72,18 +81,8 @@
                             Foreground="White" Background="#f39c12" BorderBrush="#f39c12"
                             Visibility="{Binding IsClientLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     
-                    <!-- Buton Utilizatori (vizibil doar pentru angajati) -->
-                    <Button Content="Utilizatori" Height="40" Margin="0,5" Command="{Binding NavigateToUsersCommand}" 
-                            Foreground="White" Background="#3498db" BorderBrush="#3498db"
-                            Visibility="{Binding ShowUsersButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    
-                    <!-- Buton Comenzi (vizibil doar pentru angajati) -->
-                    <Button Content="Comenzi" Height="40" Margin="0,5" Command="{Binding NavigateToOrdersCommand}" 
-                            Foreground="White" Background="#3498db" BorderBrush="#3498db"
-                            Visibility="{Binding ShowOrdersButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    
-                    <!-- Buton Adauga Preparat (vizibil doar pentru angajati) -->
-                    <Button Content="Adauga Preparat" Height="40" Margin="0,5" Command="{Binding NavigateToAddDishCommand}" 
+                    <!-- Buton Administrare (vizibil doar pentru angajati) -->
+                    <Button Content="Administrare" Height="40" Margin="0,5" Command="{Binding NavigateToAdminCommand}" 
                             Foreground="White" Background="#9b59b6" BorderBrush="#9b59b6"
                             Visibility="{Binding IsEmployeeLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     

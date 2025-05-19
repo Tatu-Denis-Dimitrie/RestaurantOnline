@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RestaurantOnline.Data;
 using RestaurantOnline.Models;
@@ -15,12 +17,29 @@ namespace RestaurantOnline
     public partial class App : Application
     {
         private ServiceProvider _serviceProvider;
+        private IConfiguration _configuration;
+        public AppSettings AppSettings { get; private set; }
 
         public ServiceProvider ServiceProvider => _serviceProvider;
+        public IConfiguration Configuration => _configuration;
 
         public App()
         {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
+            
+            // Încărcăm configurația
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            _configuration = builder.Build();
+            
+            // Încărcăm setările
+            AppSettings = new AppSettings();
+            var stockThreshold = _configuration["AppSettings:StockThreshold"];
+            if (!string.IsNullOrEmpty(stockThreshold) && int.TryParse(stockThreshold, out int threshold))
+            {
+                AppSettings.StockThreshold = threshold;
+            }
             
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
@@ -41,6 +60,10 @@ namespace RestaurantOnline
         {
             try
             {
+                // Adăugăm configurația ca serviciu
+                services.AddSingleton<IConfiguration>(_configuration);
+                services.AddSingleton(AppSettings);
+                
                 // Configurare DbContext - schimbat in ServiceLifetime.Scoped
                 services.AddDbContext<RestaurantDbContext>(options =>
                 {

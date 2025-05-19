@@ -15,6 +15,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -24,15 +25,38 @@
         <TextBlock Grid.Row="0" Text="Gestionare Comenzi" 
                    FontSize="24" FontWeight="Bold" Margin="20,10"/>
         
+        <!-- Butoane filtrare -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0,10,10">
+            <Button Content="Toate comenzile" Command="{Binding ArataComenziToateCommand}" 
+                    Width="150" Height="30" Margin="0,0,10,0"
+                    Background="#3498db" Foreground="White"/>
+            
+            <Button Content="Comenzi active" Command="{Binding ArataComenziActiveCommand}" 
+                    Width="150" Height="30"
+                    Background="#2ecc71" Foreground="White"/>
+            
+            <TextBlock Text="Comenzile sunt sortate descrescător după dată și oră." 
+                       VerticalAlignment="Center" Margin="20,0,0,0" Foreground="#666"/>
+        </StackPanel>
+        
         <!-- Lista Comenzi -->
-        <ListView Grid.Row="1" ItemsSource="{Binding Comenzi}" 
+        <ListView Grid.Row="2" ItemsSource="{Binding ComenziAfisate}" 
                   SelectedItem="{Binding ComandaSelectata}" 
                   Margin="10" BorderThickness="1" BorderBrush="#ccc">
+            
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                </Style>
+            </ListView.ItemContainerStyle>
             
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Expander Header="{Binding Status, StringFormat='Comanda {0}'}" 
-                              Padding="5" Margin="0,5" IsExpanded="False">
+                              Padding="5" Margin="0,5" 
+                              IsExpanded="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}">
                         <Grid Margin="10,5">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -41,9 +65,10 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="180"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 
@@ -59,63 +84,50 @@
                             <TextBlock Grid.Row="1" Grid.Column="1" 
                                        Text="{Binding OrderDate, StringFormat=dd/MM/yyyy HH:mm}" 
                                        Margin="0,2"/>
-
-                            <!-- Client -->
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Client:" 
+                                       
+                            <!-- Ora estimată livrare -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Estimare livrare:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" 
+                                       Text="{Binding EstimatedDeliveryTime, StringFormat=dd/MM/yyyy HH:mm}" 
+                                       Margin="0,2" Foreground="#E74C3C" FontWeight="SemiBold"/>
+
+                            <!-- Client -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Client:" 
+                                       FontWeight="SemiBold" Margin="0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" 
                                        Text="{Binding User.NumeComplet}" 
                                        Margin="0,2"/>
 
-                            <!-- Stare -->
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Stare:" 
+                            <!-- Status -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Status:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Status}" 
-                                       FontWeight="SemiBold" Margin="0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Status}" 
+                                       Margin="0,2"/>
 
-                            <!-- Valoare -->
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Valoare:" 
+                            <!-- Total -->
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Total:" 
                                        FontWeight="SemiBold" Margin="0,2"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" 
+                            <TextBlock Grid.Row="5" Grid.Column="1" 
                                        Text="{Binding FinalAmount, StringFormat={}{0:F2} lei}" 
                                        Margin="0,2"/>
 
-                            <!-- Produse -->
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Produse:" 
-                                       FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,2"/>
-                            <ItemsControl Grid.Row="5" Grid.Column="1" 
-                                         ItemsSource="{Binding OrderDishes}" Margin="0,2">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2">
-                                                    <TextBlock Text="{Binding Quantity}" Margin="0,0,5,0"/>
-                                                    <TextBlock Text="x" Margin="0,0,5,0"/>
-                                                    <TextBlock Text="{Binding Dish.Name}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                            <!-- Butoane actiuni -->
+                            <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" 
+                                        Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button Content="Detalii" Margin="0,0,10,0" Width="80" 
+                                        Command="{Binding DataContext.DetaliiComandaCommand, 
+                                        RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
                         </Grid>
                     </Expander>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="0" />
-                </Style>
-            </ListView.ItemContainerStyle>
         </ListView>
         
-        <!-- Eroare -->
-        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" 
-                   Foreground="Red" FontWeight="SemiBold" 
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        
-        <!-- Panou pentru schimbarea statusului -->
-        <Border Grid.Row="2" Background="#F5F5F5" Padding="15" Margin="10,0">
+        <!-- Schimbare status -->
+        <Border Grid.Row="3" Background="#F5F5F5" Padding="15" Margin="10,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -145,13 +157,22 @@
             </Grid>
         </Border>
         
-        <!-- Butoane -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,20,20">
-            <Button Command="{Binding RefreshCommand}" Content="Reîmprospătează" 
-                    Width="120" Height="30" Margin="10,0"/>
-            <Button Command="{Binding DetaliiComandaCommand}" Content="Detalii comandă" 
-                    Width="120" Height="30" Margin="10,0"
-                    IsEnabled="{Binding ComandaSelectata, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        </StackPanel>
+        <!-- Bara de refresh jos -->
+        <Grid Grid.Row="4" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Error message -->
+            <TextBlock Grid.Column="0" Text="{Binding ErrorMessage}" 
+                       Foreground="Red" VerticalAlignment="Center"
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            
+            <!-- Refresh button -->
+            <Button Grid.Column="1" Content="Reîmprospătează lista" 
+                    Command="{Binding RefreshCommand}"
+                    Width="160" Height="30"/>
+        </Grid>
     </Grid>
 </UserControl> 

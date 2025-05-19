@@ -8,8 +8,9 @@ namespace RestaurantOnline.Converters
     /// Un convertor universal pentru text care poate gestiona diferite tipuri de valori
     /// și le poate converti în text cu opțiuni pentru diferite cazuri
     /// </summary>
-    public class UniversalTextConverter : IValueConverter
+    public class UniversalTextConverter : IValueConverter, IMultiValueConverter
     {
+        // Implementare IValueConverter
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Formatare cu parametru
@@ -49,6 +50,23 @@ namespace RestaurantOnline.Converters
         }
         
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+        
+        // Implementare IMultiValueConverter (păstrată pentru compatibilitate înapoi)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Pentru alte tipuri de conversii multi-valoare
+            if (values.Length > 0 && values[0] != null)
+            {
+                return Convert(values[0], targetType, parameter, culture);
+            }
+            
+            return "N/A";
+        }
+        
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
+using System.Linq;
 
 namespace RestaurantOnline.ViewModels
 {
@@ -97,14 +98,55 @@ namespace RestaurantOnline.ViewModels
 
             try
             {
-                MessageBox.Show($"Detalii comandă:\n" +
-                                $"Număr: {order.OrderId}\n" +
-                                $"Data: {order.OrderDate}\n" +
-                                $"Status: {order.Status}\n" +
-                                $"Total: {order.FinalAmount:F2} lei",
-                                "Detalii Comandă",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
+                var detalii = $"Detalii comandă:\n" +
+                              $"Număr: {order.OrderId}\n" +
+                              $"Data: {order.OrderDate:dd/MM/yyyy HH:mm}\n" +
+                              $"Estimare livrare: {order.EstimatedDeliveryTime:dd/MM/yyyy HH:mm}\n" +
+                              $"Status: {order.Status}\n" +
+                              $"Total: {order.FinalAmount:F2} lei\n\n" +
+                              "Produse comandate:\n";
+                
+                // Grupăm produsele pe meniuri pentru o afișare mai clară
+                var menuGroups = order.OrderDishes
+                    .GroupBy(od => od.MenuId)
+                    .ToList();
+                
+                // 1. Mai întâi produsele individuale (MenuId == null)
+                var individualProducts = menuGroups
+                    .FirstOrDefault(g => g.Key == null);
+                
+                if (individualProducts != null)
+                {
+                    detalii += "Produse individuale:\n";
+                    foreach (var item in individualProducts)
+                    {
+                        detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"} - {item.Dish?.Price * item.Quantity:F2} lei\n";
+                    }
+                    detalii += "\n";
+                }
+                
+                // 2. Apoi produsele din meniuri, grupate pe meniuri
+                var menuProducts = menuGroups
+                    .Where(g => g.Key.HasValue)
+                    .ToList();
+                
+                if (menuProducts.Any())
+                {
+                    detalii += "Produse din meniuri:\n";
+                    foreach (var menuGroup in menuProducts)
+                    {
+                        var menuId = menuGroup.Key.Value;
+                        detalii += $"Meniu #{menuId}:\n";
+                        
+                        foreach (var item in menuGroup)
+                        {
+                            detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"}\n";
+                        }
+                        detalii += "\n";
+                    }
+                }
+                
+                MessageBox.Show(detalii, "Detalii Comandă", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

@@ -36,7 +36,7 @@
         </Grid.RowDefinitions>
         
         <!-- Titlul paginii -->
-        <TextBlock Grid.Row="0" Text="Add New Dish" 
+        <TextBlock Grid.Row="0" Text="Adauga preparat" 
                    FontSize="24" FontWeight="Bold" Margin="20,20,20,10"/>
         
         <!-- Formular adaugare preparat -->

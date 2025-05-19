@@ -16,6 +16,7 @@ namespace RestaurantOnline.Models
         private decimal _deliveryFee;
         private User _user;
         private ObservableCollection<OrderDish> _orderDishes;
+        private bool _isSelected;
 
         public Order()
         {
@@ -79,5 +80,15 @@ namespace RestaurantOnline.Models
             get => _orderDishes ??= new ObservableCollection<OrderDish>();
             set => SetProperty(ref _orderDishes, value);
         }
+        
+        [NotMapped]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+        
+        [NotMapped]
+        public DateTime EstimatedDeliveryTime => OrderDate.AddMinutes(30);
     }
 } 
