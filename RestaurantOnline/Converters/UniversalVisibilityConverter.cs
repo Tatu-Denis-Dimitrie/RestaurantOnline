@@ -6,10 +6,6 @@ using System.Windows.Data;
 
 namespace RestaurantOnline.Converters
 {
-    /// <summary>
-    /// Convertor universal pentru vizibilitate care poate gestiona diferite tipuri de date
-    /// și le poate converti la Visibility în funcție de valoarea lor
-    /// </summary>
     public class UniversalVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

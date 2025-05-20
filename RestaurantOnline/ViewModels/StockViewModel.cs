@@ -25,14 +25,14 @@ namespace RestaurantOnline.ViewModels
             _dishService = dishService ?? throw new ArgumentNullException(nameof(dishService));
             _preparate = new ObservableCollection<Dish>();
             _quantityToAdd = 0;
-            
+
             // Obține valoarea pragului din configurație
-            var app = App.Current as App;
+            var app = Application.Current as App;
             _stockThreshold = app?.AppSettings?.StockThreshold ?? 1000;
-            
+
             RefreshCommand = new RelayCommand(_ => LoadStockAsync());
             UpdateStockCommand = new RelayCommand(_ => UpdateStockAsync(), _ => CanUpdateStock());
-            
+
             // Încărcarea inițială a datelor
             LoadStockAsync();
         }
@@ -48,7 +48,7 @@ namespace RestaurantOnline.ViewModels
             get => _errorMessage;
             set => SetProperty(ref _errorMessage, value);
         }
-        
+
         public string SuccessMessage
         {
             get => _successMessage;
@@ -60,16 +60,16 @@ namespace RestaurantOnline.ViewModels
             get => _preparate;
             set => SetProperty(ref _preparate, value);
         }
-        
+
         public int StockThreshold
         {
             get => _stockThreshold;
         }
-        
+
         public Dish SelectedPreparat
         {
             get => _selectedPreparat;
-            set 
+            set
             {
                 if (SetProperty(ref _selectedPreparat, value))
                 {
@@ -79,7 +79,7 @@ namespace RestaurantOnline.ViewModels
                 }
             }
         }
-        
+
         public int QuantityToAdd
         {
             get => _quantityToAdd;
@@ -88,12 +88,12 @@ namespace RestaurantOnline.ViewModels
 
         public ICommand RefreshCommand { get; }
         public ICommand UpdateStockCommand { get; }
-        
+
         private bool CanUpdateStock()
         {
             return SelectedPreparat != null && !IsLoading;
         }
-        
+
         private async void UpdateStockAsync()
         {
             if (SelectedPreparat == null)
@@ -101,40 +101,40 @@ namespace RestaurantOnline.ViewModels
                 ErrorMessage = "Selectați un preparat pentru actualizarea stocului.";
                 return;
             }
-            
+
             // Verificăm dacă utilizatorul a introdus o valoare numerică validă
             if (QuantityToAdd == 0)
             {
                 ErrorMessage = "Introduceți o cantitate diferită de zero pentru actualizarea stocului.";
                 return;
             }
-            
+
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
                 SuccessMessage = string.Empty;
-                
+
                 int dishId = SelectedPreparat.DishId;
                 string dishName = SelectedPreparat.Name;
                 int quantityToAdd = QuantityToAdd;
-                
+
                 // Salvăm valorile înainte de a apela serviciul pentru a evita modificări concurente
                 Console.WriteLine($"Se actualizează stocul pentru {dishName} (ID: {dishId}) cu {quantityToAdd}g");
-                
+
                 bool success = await _dishService.UpdateStockAsync(dishId, quantityToAdd);
-                
+
                 if (success)
                 {
                     // Reîncărcăm datele pentru a afișa valorile actualizate
                     await ReloadDataAsync();
-                    
+
                     // Reselecțăm preparatul
                     SelectedPreparat = Preparate.FirstOrDefault(p => p.DishId == dishId);
-                    
+
                     // Afișăm mesaj de succes
                     SuccessMessage = $"Stocul pentru {dishName} a fost actualizat cu succes.";
-                    
+
                     // Resetăm cantitatea de adăugat
                     QuantityToAdd = 0;
                 }
@@ -156,7 +156,7 @@ namespace RestaurantOnline.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         // Metodă separată pentru reîncărcarea datelor
         private async Task ReloadDataAsync()
         {
@@ -164,10 +164,10 @@ namespace RestaurantOnline.ViewModels
             {
                 // Încarcă toate preparatele pentru a vedea stocul actualizat
                 var preparate = await _dishService.GetAllAsync();
-                
+
                 // Sortăm preparatele după nume pentru afișare
                 var sortedPreparate = preparate.OrderBy(p => p.Name).ToList();
-                
+
                 // Actualizează colecția
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -191,7 +191,7 @@ namespace RestaurantOnline.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
                 SuccessMessage = string.Empty;
-                
+
                 // Utilizăm metoda comună pentru încărcarea datelor
                 await ReloadDataAsync();
             }
@@ -205,4 +205,4 @@ namespace RestaurantOnline.ViewModels
             }
         }
     }
-} 
+}

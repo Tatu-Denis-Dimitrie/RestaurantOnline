@@ -1,9 +1,9 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using RestaurantOnline.Models;
 using RestaurantOnline.Services;
+using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline.ViewModels
 {

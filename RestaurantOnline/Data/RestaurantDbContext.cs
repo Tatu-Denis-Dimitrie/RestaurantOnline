@@ -22,13 +22,11 @@ namespace RestaurantOnline.Data
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuDish> MenuDishes { get; set; }
         public DbSet<DishImage> DishPhotos { get; set; }
-        public DbSet<Setting> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurare relatii si tabeluri
             
             // Configurare pentru Category
             modelBuilder.Entity<Category>()
@@ -125,9 +123,6 @@ namespace RestaurantOnline.Data
                 .WithMany()
                 .HasForeignKey(cp => cp.DishId);
 
-            // Configurare pentru Setting
-            modelBuilder.Entity<Setting>()
-                .ToTable("Settings");
         }
     }
 } 

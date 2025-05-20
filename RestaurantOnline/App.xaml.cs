@@ -86,12 +86,15 @@ namespace RestaurantOnline
                 services.AddScoped<IRestaurantS<Menu>, MenuService>();
                 services.AddScoped<IRestaurantS<User>, UserS>();
                 services.AddScoped<IRestaurantS<Order>, OrderS>();
-                services.AddScoped<IRestaurantS<Setting>, RestaurantDataS<Setting>>();
 
                 // Servicii specializate - schimbat din Singleton in Scoped
                 services.AddScoped<DishS>();
                 services.AddScoped<CategoryS>();
-                services.AddScoped<OrderS>();
+                services.AddScoped<OrderS>(provider => {
+                    var dbContext = provider.GetRequiredService<RestaurantDbContext>();
+                    var configuration = provider.GetRequiredService<IConfiguration>();
+                    return new OrderS(dbContext, configuration);
+                });
                 services.AddScoped<UserS>();
                 services.AddScoped<AllergenS>();
                 services.AddScoped<MenuService>();
