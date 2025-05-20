@@ -41,6 +41,13 @@ namespace RestaurantOnline
                 AppSettings.StockThreshold = threshold;
             }
             
+            // Încărcăm procentul de reducere pentru meniuri
+            var menuDiscountPercent = _configuration["AppSettings:MenuDiscountPercent"];
+            if (!string.IsNullOrEmpty(menuDiscountPercent) && int.TryParse(menuDiscountPercent, out int discount))
+            {
+                AppSettings.MenuDiscountPercent = discount;
+            }
+            
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();

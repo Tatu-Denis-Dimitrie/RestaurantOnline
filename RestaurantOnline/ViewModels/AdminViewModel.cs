@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using RestaurantOnline.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RestaurantOnline.ViewModels
 {
@@ -10,6 +11,7 @@ namespace RestaurantOnline.ViewModels
         private readonly AllergenS _allergenService;
         private readonly UserS _userService;
         private readonly OrderS _orderService;
+        private readonly MenuService _menuService;
         private readonly MainViewModel _mainViewModel;
         private ViewModelBase _currentTabViewModel;
         private int _selectedTabIndex;
@@ -28,9 +30,12 @@ namespace RestaurantOnline.ViewModels
             _userService = userService;
             _orderService = orderService;
             _mainViewModel = mainViewModel;
+            _menuService = ((App)System.Windows.Application.Current).ServiceProvider.GetRequiredService<MenuService>();
             
             // Comenzi pentru navigare
             AdaugaPreparatCommand = new RelayCommand(_ => ShowAdaugaPreparat());
+            EditarePreparatCommand = new RelayCommand(_ => ShowEditarePreparat());
+            AdaugaMeniuCommand = new RelayCommand(_ => ShowAdaugaMeniu());
             ComenziCommand = new RelayCommand(_ => ShowComenzi());
             UtilizatoriCommand = new RelayCommand(_ => ShowUtilizatori());
             CategoriiCommand = new RelayCommand(_ => ShowCategorii());
@@ -63,6 +68,8 @@ namespace RestaurantOnline.ViewModels
         }
         
         public ICommand AdaugaPreparatCommand { get; }
+        public ICommand EditarePreparatCommand { get; }
+        public ICommand AdaugaMeniuCommand { get; }
         public ICommand ComenziCommand { get; }
         public ICommand UtilizatoriCommand { get; }
         public ICommand CategoriiCommand { get; }
@@ -78,18 +85,24 @@ namespace RestaurantOnline.ViewModels
                     ShowAdaugaPreparat();
                     break;
                 case 1:
-                    ShowComenzi();
+                    ShowEditarePreparat();
                     break;
                 case 2:
-                    ShowUtilizatori();
+                    ShowAdaugaMeniu();
                     break;
                 case 3:
-                    ShowCategorii();
+                    ShowComenzi();
                     break;
                 case 4:
-                    ShowAlergeni();
+                    ShowUtilizatori();
                     break;
                 case 5:
+                    ShowCategorii();
+                    break;
+                case 6:
+                    ShowAlergeni();
+                    break;
+                case 7:
                     ShowStock();
                     break;
                 default:
@@ -101,6 +114,16 @@ namespace RestaurantOnline.ViewModels
         private void ShowAdaugaPreparat()
         {
             CurrentTabViewModel = new AddDishViewModel(_dishService, _categoryService, _allergenService, _mainViewModel);
+        }
+        
+        private void ShowEditarePreparat()
+        {
+            CurrentTabViewModel = new EditDishViewModel(_dishService, _categoryService, _allergenService, _mainViewModel);
+        }
+        
+        private void ShowAdaugaMeniu()
+        {
+            CurrentTabViewModel = new AddMenuViewModel(_menuService, _dishService, _categoryService, _mainViewModel);
         }
         
         private void ShowComenzi()

@@ -3,13 +3,18 @@ using RestaurantOnline.Data;
 using RestaurantOnline.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace RestaurantOnline.Services
 {
     public class MenuService : RestaurantDataS<Menu>
     {
-        public MenuService(RestaurantDbContext context) : base(context)
+        private readonly AppSettings _appSettings;
+        
+        public MenuService(RestaurantDbContext context, AppSettings appSettings) : base(context)
         {
+            _appSettings = appSettings;
         }
 
         public override async Task<ObservableCollection<Menu>> GetAllAsync()
@@ -41,6 +46,12 @@ namespace RestaurantOnline.Services
                             menuDish.Dish.DishAllergens = dishWithAllergens.DishAllergens;
                         }
                     }
+                }
+                
+                // Aplicăm reducerea pentru meniu dacă este configurată
+                if (_appSettings.MenuDiscountPercent > 0)
+                {
+                    menu.DiscountPercent = _appSettings.MenuDiscountPercent;
                 }
             }
 
@@ -78,11 +89,67 @@ namespace RestaurantOnline.Services
                             }
                         }
                     }
+                    
+                    // Aplicăm reducerea pentru meniu dacă este configurată
+                    if (_appSettings.MenuDiscountPercent > 0)
+                    {
+                        menu.DiscountPercent = _appSettings.MenuDiscountPercent;
+                    }
                 }
 
                 return menu;
             }
             return null;
+        }
+        
+        public override async Task<bool> DeleteAsync(object id)
+        {
+            try
+            {
+                // Resetam starea de tracking pentru a evita probleme cu entitati duplicate
+                _context.ChangeTracker.Clear();
+                
+                if (!(id is int menuId))
+                    return false;
+                
+                // Verificăm dacă meniul este prezent în comenzi
+                bool existsInOrders = await _context.OrderDishes
+                    .AnyAsync(od => od.MenuId == menuId);
+                
+                if (existsInOrders)
+                {
+                    // Nu putem șterge un meniu care este folosit în comenzi
+                    Console.WriteLine($"Meniul cu id-ul {menuId} nu poate fi șters deoarece există comenzi care îl conțin.");
+                    return false;
+                }
+                
+                // Găsim meniul cu toate relațiile sale
+                var menu = await _context.Menus
+                    .Include(m => m.MenuDishes)
+                    .FirstOrDefaultAsync(m => m.MenuId == menuId);
+
+                if (menu == null)
+                    return false;
+
+                // Ștergem toate relațiile MenuDish
+                foreach (var menuDish in menu.MenuDishes.ToList())
+                {
+                    _context.MenuDishes.Remove(menuDish);
+                }
+
+                // Ștergem meniul
+                _context.Menus.Remove(menu);
+
+                // Salvăm schimbările
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Logăm eroarea sau o tratăm corespunzător
+                Console.WriteLine($"Eroare la ștergerea meniului: {ex.Message}");
+                throw; // Re-aruncăm excepția pentru a fi tratată de apelant
+            }
         }
     }
 } 

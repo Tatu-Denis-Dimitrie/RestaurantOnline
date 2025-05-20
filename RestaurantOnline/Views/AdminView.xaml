@@ -24,6 +24,12 @@
             <TabItem Header="Adaugă Preparat">
                 <ContentControl Content="{Binding CurrentTabViewModel}"/>
             </TabItem>
+            <TabItem Header="Editare Preparat">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
+            <TabItem Header="Adaugă Meniu">
+                <ContentControl Content="{Binding CurrentTabViewModel}"/>
+            </TabItem>
             <TabItem Header="Comenzi">
                 <ContentControl Content="{Binding CurrentTabViewModel}"/>
             </TabItem>

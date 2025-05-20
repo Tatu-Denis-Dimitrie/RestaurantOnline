@@ -153,10 +153,7 @@ namespace RestaurantOnline.ViewModels
         
         private void CalculateTotalAmount()
         {
-            decimal productTotal = CartItems.Sum(item => 
-                item.IsMenuDish 
-                    ? (item.Menu?.TotalPrice ?? 0) * item.Quantity 
-                    : (item.Dish?.Price ?? 0) * item.Quantity);
+            decimal productTotal = CartItems.Sum(item => item.LineTotal);
             decimal deliveryFee = CartItems.Count > 0 ? 10.00m : 0;
             TotalAmount = productTotal + deliveryFee;
         }
@@ -236,10 +233,7 @@ namespace RestaurantOnline.ViewModels
                     }
                 }
                 
-                decimal productTotal = CartItems.Sum(item => 
-                    item.IsMenuDish 
-                        ? (item.Menu?.TotalPrice ?? 0) * item.Quantity 
-                        : (item.Dish?.Price ?? 0) * item.Quantity);
+                decimal productTotal = CartItems.Sum(item => item.LineTotal);
                 decimal deliveryFee = 10.00m;
                 decimal finalAmount = productTotal + deliveryFee;
                 
@@ -474,7 +468,7 @@ namespace RestaurantOnline.ViewModels
         }
         
         public decimal LineTotal => IsMenuDish 
-            ? (Menu?.TotalPrice ?? 0) * Quantity 
+            ? GetMenuPrice() * Quantity 
             : (Dish?.Price ?? 0) * Quantity;
         
         public string Name => IsMenuDish 
@@ -482,7 +476,16 @@ namespace RestaurantOnline.ViewModels
             : Dish?.Name ?? "Preparat necunoscut";
         
         public decimal UnitPrice => IsMenuDish 
-            ? Menu?.TotalPrice ?? 0 
+            ? GetMenuPrice() 
             : Dish?.Price ?? 0;
+            
+        private decimal GetMenuPrice()
+        {
+            if (Menu == null) return 0;
+            
+            return Menu.HasDiscount 
+                ? Menu.DiscountedPrice 
+                : Menu.TotalPrice;
+        }
     }
 } 

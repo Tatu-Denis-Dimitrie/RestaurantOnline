@@ -109,7 +109,7 @@ namespace RestaurantOnline.ViewModels
             CurrentViewModel = new DishViewModel(_dishService, _categoryService, IsEmployeeLoggedIn);
         }
         
-        private void NavigateToMenus()
+        public void NavigateToMenus()
         {
             CurrentViewModel = new MenuViewModel(_menuService, _categoryService, IsEmployeeLoggedIn);
         }

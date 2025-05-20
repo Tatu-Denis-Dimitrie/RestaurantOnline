@@ -33,6 +33,7 @@
         
         <!-- Lista cu stoc -->
         <DataGrid Grid.Row="2" ItemsSource="{Binding Preparate}" 
+                  SelectedItem="{Binding SelectedPreparat, Mode=TwoWay}"
                   AutoGenerateColumns="False" IsReadOnly="True"
                   AlternatingRowBackground="#F5F5F5"
                   CanUserAddRows="False" CanUserDeleteRows="False"
@@ -61,17 +62,35 @@
         <!-- Bara de jos -->
         <Grid Grid.Row="3" Margin="10">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
+            <!-- Panel actualizare stoc -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,20,0">
+                <TextBlock Text="Adaugă/Scade cantitate (g):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBox Text="{Binding QuantityToAdd, UpdateSourceTrigger=PropertyChanged}" 
+                         Width="80" Height="25" VerticalContentAlignment="Center"/>
+                <Button Content="Actualizează" Margin="10,0,0,0" Height="30" Width="100"
+                        Command="{Binding UpdateStockCommand}"/>
+            </StackPanel>
+            
+            <!-- Mesaje -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
             <!-- Mesaj de eroare -->
-            <TextBlock Grid.Column="0" Text="{Binding ErrorMessage}" 
+                <TextBlock Text="{Binding ErrorMessage}" 
                        Foreground="Red" VerticalAlignment="Center" 
-                       Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                
+                <!-- Mesaj de succes -->
+                <TextBlock Text="{Binding SuccessMessage}" 
+                           Foreground="Green" VerticalAlignment="Center" 
+                           Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+            </StackPanel>
                        
             <!-- Buton de reîmprospătare -->
-            <Button Grid.Column="1" Content="Reîmprospătează" 
+            <Button Grid.Column="2" Content="Reîmprospătează" 
                     Command="{Binding RefreshCommand}"
                     Width="120" Height="30"/>
         </Grid>

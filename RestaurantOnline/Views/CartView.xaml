@@ -12,7 +12,7 @@
     <UserControl.Resources>
         <converters:ImagePathConverter x:Key="ImagePathConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:UniversalVisibilityConverter x:Key="UniversalVisibilityConverter"/>
     </UserControl.Resources>
     
     <Grid>
@@ -73,7 +73,7 @@
                                             <!-- Imagine preparat individual -->
                                             <Image Source="{Binding Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
                                                    Stretch="Uniform" Margin="5"
-                                                   Visibility="{Binding IsMenuDish, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                                                   Visibility="{Binding IsMenuDish, Converter={StaticResource UniversalVisibilityConverter}, ConverterParameter=invert}"/>
                                             
                                             <!-- Imagine primă fotografie a primului preparat din meniu -->
                                             <Image Source="{Binding Menu.MenuDishes[0].Dish.Photos[0].Url, Converter={StaticResource ImagePathConverter}, TargetNullValue='/Resources/Images/no_image.png'}"
@@ -88,7 +88,7 @@
                                                    FontWeight="Bold" FontSize="16"/>
                                         
                                         <!-- Detalii preparat individual -->
-                                        <StackPanel Visibility="{Binding IsMenuDish, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                        <StackPanel Visibility="{Binding IsMenuDish, Converter={StaticResource UniversalVisibilityConverter}, ConverterParameter=invert}">
                                             <TextBlock Text="{Binding Dish.Category.Name}" 
                                                        Foreground="#666666" Margin="0,5,0,0"/>
                                             <TextBlock Text="{Binding Dish.Description}" 

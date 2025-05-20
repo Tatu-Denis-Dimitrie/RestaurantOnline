@@ -218,8 +218,19 @@ namespace RestaurantOnline.ViewModels
             {
                 try
                 {
-                    await _menuService.DeleteAsync(meniu.MenuId);
+                    bool success = await _menuService.DeleteAsync(meniu.MenuId);
+                    
+                    if (success)
+                    {
                     Meniuri.Remove(meniu);
+                        MessageBox.Show("Meniul a fost șters cu succes.", "Succes", 
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Meniul nu poate fi șters deoarece există comenzi care îl conțin.", "Operație nepermisă", 
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -242,8 +242,8 @@ namespace RestaurantOnline.ViewModels
                     }
                     else
                     {
-                        MessageBox.Show("Nu s-a putut sterge preparatul.", "Eroare", 
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Preparatul nu poate fi șters deoarece există comenzi care îl conțin.", "Operație nepermisă", 
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)

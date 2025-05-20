@@ -26,6 +26,9 @@
         <DataTemplate DataType="{x:Type viewmodels:AddDishViewModel}">
             <views:AddDishView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:AddMenuViewModel}">
+            <views:AddMenuView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:AdminViewModel}">
             <views:AdminView />
         </DataTemplate>

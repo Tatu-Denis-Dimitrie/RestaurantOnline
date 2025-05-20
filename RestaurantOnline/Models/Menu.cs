@@ -13,6 +13,7 @@ namespace RestaurantOnline.Models
         private int _categoryId;
         private Category _category;
         private ObservableCollection<MenuDish> _menuDishes;
+        private decimal _discountPercent = 0;
 
         public Menu()
         {
@@ -57,10 +58,26 @@ namespace RestaurantOnline.Models
         }
 
         [NotMapped]
+        public decimal DiscountPercent
+        {
+            get => _discountPercent;
+            set => SetProperty(ref _discountPercent, value);
+        }
+
+        [NotMapped]
         public virtual IEnumerable<Dish> Dishes => MenuDishes?.Select(md => md.Dish).Where(d => d != null) ?? Enumerable.Empty<Dish>();
 
         [NotMapped]
         public decimal TotalPrice => MenuDishes?.Sum(md => md.Dish?.Price ?? 0) ?? 0;
+        
+        [NotMapped]
+        public decimal DiscountedPrice => TotalPrice * (1 - DiscountPercent / 100);
+        
+        [NotMapped]
+        public decimal DiscountAmount => TotalPrice - DiscountedPrice;
+        
+        [NotMapped]
+        public bool HasDiscount => DiscountPercent > 0;
     }
 
     public class MenuDish : ViewModelBase

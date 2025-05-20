@@ -20,12 +20,16 @@
              <converters:UniversalVisibilityConverter x:Key="NullToVisibilityConverter"/>
              <converters:UniversalVisibilityConverter x:Key="CountToVisibilityConverter"/>
              <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+             <converters:UniversalVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
              <converters:UniversalTextConverter x:Key="BoolToTextConverter"/>
              <converters:UniversalTextConverter x:Key="NullToTextConverter"/>
              
              <!-- DataTemplates pentru ViewModels -->
              <DataTemplate DataType="{x:Type viewmodels:StockViewModel}">
                  <views:StockView />
+             </DataTemplate>
+             <DataTemplate DataType="{x:Type viewmodels:EditDishViewModel}">
+                 <views:EditDishView />
              </DataTemplate>
          </ResourceDictionary>
     </Application.Resources>
