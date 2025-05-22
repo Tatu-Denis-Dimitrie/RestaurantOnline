@@ -7,11 +7,9 @@
              xmlns:views="clr-namespace:RestaurantOnline.Views">
     <Application.Resources>
          <ResourceDictionary>
-             <!-- Convertori universali -->
              <converters:UniversalVisibilityConverter x:Key="UniversalVisibilityConverter"/>
              <converters:UniversalTextConverter x:Key="UniversalTextConverter"/>
              
-             <!-- Alți convertori specializați care nu pot fi unificați -->
              <converters:StareToColorConverter x:Key="StareToColorConverter"/>
              <converters:ImagePathConverter x:Key="ImagePathConverter"/>
              
@@ -24,7 +22,6 @@
              <converters:UniversalTextConverter x:Key="BoolToTextConverter"/>
              <converters:UniversalTextConverter x:Key="NullToTextConverter"/>
              
-             <!-- DataTemplates pentru ViewModels -->
              <DataTemplate DataType="{x:Type viewmodels:StockViewModel}">
                  <views:StockView />
              </DataTemplate>

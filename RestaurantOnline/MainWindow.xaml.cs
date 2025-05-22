@@ -14,9 +14,6 @@ using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()

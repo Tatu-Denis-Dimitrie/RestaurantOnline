@@ -11,9 +11,6 @@ using RestaurantOnline.ViewModels;
 
 namespace RestaurantOnline
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
         private ServiceProvider _serviceProvider;
@@ -27,13 +24,11 @@ namespace RestaurantOnline
         {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             
-            // Încărcăm configurația
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             _configuration = builder.Build();
             
-            // Încărcăm setările
             AppSettings = new AppSettings();
             var stockThreshold = _configuration["AppSettings:StockThreshold"];
             if (!string.IsNullOrEmpty(stockThreshold) && int.TryParse(stockThreshold, out int threshold))
@@ -41,7 +36,6 @@ namespace RestaurantOnline
                 AppSettings.StockThreshold = threshold;
             }
             
-            // Încărcăm procentul de reducere pentru meniuri
             var menuDiscountPercent = _configuration["AppSettings:MenuDiscountPercent"];
             if (!string.IsNullOrEmpty(menuDiscountPercent) && int.TryParse(menuDiscountPercent, out int discount))
             {
@@ -55,11 +49,9 @@ namespace RestaurantOnline
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            // Afisam un mesaj de eroare utilizatorului
             MessageBox.Show($"A aparut o eroare neasteptata: {e.Exception.Message}\n\nDetalii: {e.Exception.StackTrace}", 
                 "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             
-            // Marcam exceptia ca tratata pentru a preveni inchiderea aplicatiei
             e.Handled = true;
         }
 
@@ -67,11 +59,9 @@ namespace RestaurantOnline
         {
             try
             {
-                // Adăugăm configurația ca serviciu
                 services.AddSingleton<IConfiguration>(_configuration);
                 services.AddSingleton(AppSettings);
                 
-                // Configurare DbContext - schimbat in ServiceLifetime.Scoped
                 services.AddDbContext<RestaurantDbContext>(options =>
                 {
                     options.UseSqlServer("Server=DESKTOP-4MN145N;Database=RestaurantDB2;Trusted_Connection=True;TrustServerCertificate=True;");
@@ -79,7 +69,6 @@ namespace RestaurantOnline
                     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 }, ServiceLifetime.Scoped);
 
-                // Servicii pentru entitati - schimbat din Singleton in Scoped
                 services.AddScoped<IRestaurantS<Dish>, DishS>();
                 services.AddScoped<IRestaurantS<Category>, CategoryS>();
                 services.AddScoped<IRestaurantS<Allergen>, AllergenS>();
@@ -87,7 +76,6 @@ namespace RestaurantOnline
                 services.AddScoped<IRestaurantS<User>, UserS>();
                 services.AddScoped<IRestaurantS<Order>, OrderS>();
 
-                // Servicii specializate - schimbat din Singleton in Scoped
                 services.AddScoped<DishS>();
                 services.AddScoped<CategoryS>();
                 services.AddScoped<OrderS>(provider => {
@@ -99,7 +87,6 @@ namespace RestaurantOnline
                 services.AddScoped<AllergenS>();
                 services.AddScoped<MenuService>();
 
-                // ViewModels - cream factory pattern pentru ViewModel-uri
                 services.AddTransient<MainViewModel>(provider => {
                     var preparatService = provider.GetRequiredService<DishS>();
                     var categorieService = provider.GetRequiredService<CategoryS>();
@@ -109,7 +96,6 @@ namespace RestaurantOnline
                     return new MainViewModel(preparatService, categorieService, utilizatorService, comandaService, allergenService);
                 });
 
-                // Vizualizari
                 services.AddSingleton<MainWindow>();
             }
             catch (Exception ex)
