@@ -70,14 +70,12 @@ namespace RestaurantOnline.ViewModels
             }
         }
 
-        // Properties for button visibility management
         public bool IsUserLoggedIn => CurrentUser != null;
         
         public bool IsClientLoggedIn => CurrentUser != null && CurrentUser.Role == "Client";
         
         public bool IsEmployeeLoggedIn => CurrentUser != null && CurrentUser.Role == "Angajat";
         
-        // Properties for controlling specific button visibility
         public bool ShowUsersButton => IsEmployeeLoggedIn;
         
         public bool ShowOrdersButton => IsEmployeeLoggedIn;
@@ -86,7 +84,6 @@ namespace RestaurantOnline.ViewModels
             ? $"Bun venit, {CurrentUser.NumeComplet}!" 
             : string.Empty;
 
-        // Navigation commands
         public ICommand NavigateToDishesCommand { get; }
         public ICommand NavigateToUsersCommand { get; }
         public ICommand NavigateToOrdersCommand { get; }
@@ -157,10 +154,8 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
-                // Forțăm reîncărcarea conținutului coșului
                 cartViewModel.RefreshCart();
                 
-                // Setăm view-ul curent
                 CurrentViewModel = cartViewModel;
             }
             catch (Exception ex)

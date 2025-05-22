@@ -32,7 +32,6 @@ namespace RestaurantOnline.ViewModels
             _mainViewModel = mainViewModel;
             _menuService = ((App)System.Windows.Application.Current).ServiceProvider.GetRequiredService<MenuService>();
 
-            // Comenzi pentru navigare
             AdaugaPreparatCommand = new RelayCommand(_ => ShowAdaugaPreparat());
             EditarePreparatCommand = new RelayCommand(_ => ShowEditarePreparat());
             AdaugaMeniuCommand = new RelayCommand(_ => ShowAdaugaMeniu());
@@ -43,7 +42,6 @@ namespace RestaurantOnline.ViewModels
             StockCommand = new RelayCommand(_ => ShowStock());
             InapoiCommand = new RelayCommand(_ => _mainViewModel.NavigateToHome());
 
-            // Setează tabul inițial
             _selectedTabIndex = 0;
             ShowAdaugaPreparat();
         }
@@ -61,7 +59,6 @@ namespace RestaurantOnline.ViewModels
             {
                 if (SetProperty(ref _selectedTabIndex, value))
                 {
-                    // Actualizează conținutul în funcție de tabul selectat
                     UpdateTabContent();
                 }
             }

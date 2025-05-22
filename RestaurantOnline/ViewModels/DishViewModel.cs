@@ -192,7 +192,6 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
-                // Creăm o nouă instanță de CartViewModel pentru a adăuga preparatul
                 var orderService = ((App)Application.Current).ServiceProvider.GetService(typeof(OrderS)) as OrderS;
                 var mainViewModel = ((App)Application.Current).ServiceProvider.GetService(typeof(MainViewModel)) as MainViewModel;
                 
@@ -201,7 +200,6 @@ namespace RestaurantOnline.ViewModels
                     var cartViewModel = new CartViewModel(orderService, _preparatService, mainViewModel);
                     cartViewModel.AddToCart(preparat);
                     
-                    // Salvăm instanța cart în Properties
                     if (Application.Current.Properties.Contains("CartItems"))
                     {
                         Application.Current.Properties.Remove("CartItems");
@@ -237,7 +235,6 @@ namespace RestaurantOnline.ViewModels
                         MessageBox.Show("Preparatul a fost sters cu succes.", "Succes", 
                             MessageBoxButton.OK, MessageBoxImage.Information);
                             
-                        // Reincarcam lista de preparate
                         LoadPreparate();
                     }
                     else

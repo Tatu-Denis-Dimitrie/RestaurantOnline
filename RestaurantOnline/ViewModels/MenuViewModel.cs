@@ -108,14 +108,17 @@ namespace RestaurantOnline.ViewModels
             try
             {
                 IsLoading = true;
+                var toateCategoriile = new Category { Name = "Toate categoriile" };
                 var categorii = await _categorieService.GetAllAsync();
                 await _dispatcher.InvokeAsync(() =>
                 {
                     Categorii.Clear();
+                    Categorii.Add(toateCategoriile);
                     foreach (var categorie in categorii)
                     {
                         Categorii.Add(categorie);
                     }
+                    CategorieSelectata = toateCategoriile;
                 });
 
                 var meniuri = await _menuService.GetAllAsync();
@@ -158,7 +161,7 @@ namespace RestaurantOnline.ViewModels
                     
                     var meniuriFiltrate = meniuri.AsQueryable();
                     
-                    if (CategorieSelectata != null)
+                    if (CategorieSelectata != null && CategorieSelectata.CategoryId != 0 && !CategorieSelectata.Name.Equals("Toate categoriile", StringComparison.OrdinalIgnoreCase))
                     {
                         meniuriFiltrate = meniuriFiltrate.Where(m => m.CategoryId == CategorieSelectata.CategoryId);
                     }

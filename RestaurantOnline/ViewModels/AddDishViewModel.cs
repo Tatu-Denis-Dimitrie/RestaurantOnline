@@ -44,11 +44,9 @@ namespace RestaurantOnline.ViewModels
             SaveCommand = new RelayCommand(_ => SaveDish());
             CancelCommand = new RelayCommand(_ => CancelAdd());
 
-            // incarcam datele cand se creeaza pagina
             _ = InitializeDataAsync();
         }
 
-        // Proprietati
         public string Name
         {
             get => _name;
@@ -159,7 +157,6 @@ namespace RestaurantOnline.ViewModels
         {
             try
             {
-                // incarcam alergenii din baza de date
                 var allergens = await _allergenService.GetAllAsync();
                 AllAllergens.Clear();
 
@@ -197,7 +194,6 @@ namespace RestaurantOnline.ViewModels
                     CategoryId = SelectedCategory.CategoryId
                 };
 
-                // Adaugam alergenii selectati
                 var selectedAllergens = AllAllergens.Where(a => a.IsSelected).ToList();
                 if (selectedAllergens.Any())
                 {
@@ -210,7 +206,6 @@ namespace RestaurantOnline.ViewModels
                     }
                 }
 
-                // Adaugam imaginea daca s-a introdus un nume
                 if (!string.IsNullOrWhiteSpace(PhotoName))
                 {
                     dish.Photos.Add(new DishImage
@@ -219,15 +214,12 @@ namespace RestaurantOnline.ViewModels
                     });
                 }
 
-                // Salvam preparatul in baza de date cu tratarea erorilor detaliate
                 try
                 {
                     await _dishService.AddAsync(dish);
 
-                    // Afisam mesaj de succes
                     MessageBox.Show("The dish was added successfully to the database!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Navigheaza inapoi la lista de preparate si reincarca datele
                     _mainViewModel.NavigateToHome();
                 }
                 catch (Exception ex)

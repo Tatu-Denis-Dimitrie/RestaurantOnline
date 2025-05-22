@@ -46,11 +46,9 @@ namespace RestaurantOnline.ViewModels
             RemoveDishCommand = new RelayCommand(d => RemoveDishFromMenu(d as DishItemViewModel));
             SearchCommand = new RelayCommand(_ => SearchDishes());
 
-            // Încărcăm datele când se creează pagina
             _ = InitializeDataAsync();
         }
 
-        // Proprietăți
         public string Name
         {
             get => _name;
@@ -180,7 +178,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SearchTerm))
             {
-                // Dacă termenul de căutare este gol, afișăm toate preparatele
                 foreach (var dishVM in AllDishes)
                 {
                     dishVM.IsVisible = true;
@@ -190,7 +187,6 @@ namespace RestaurantOnline.ViewModels
 
             var searchTermLower = SearchTerm.ToLower();
 
-            // Filtrăm preparatele după numele care conține termenul de căutare
             foreach (var dishVM in AllDishes)
             {
                 dishVM.IsVisible = dishVM.Dish?.Name?.ToLower().Contains(searchTermLower) ?? false;
@@ -201,7 +197,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (dishVM == null || dishVM.Dish == null) return;
 
-            // Verificăm dacă preparatul este deja adăugat în meniu
             var existingDish = SelectedDishes.FirstOrDefault(d => d.Dish?.DishId == dishVM.Dish.DishId);
             if (existingDish == null)
             {
@@ -212,7 +207,6 @@ namespace RestaurantOnline.ViewModels
                 };
                 SelectedDishes.Add(newDishVM);
 
-                // Notificăm modificarea prețului total
                 OnPropertyChanged(nameof(TotalPrice));
                 OnPropertyChanged(nameof(DiscountedPrice));
             }
@@ -224,7 +218,6 @@ namespace RestaurantOnline.ViewModels
 
             SelectedDishes.Remove(dishVM);
 
-            // Notificăm modificarea prețului total
             OnPropertyChanged(nameof(TotalPrice));
             OnPropertyChanged(nameof(DiscountedPrice));
         }
@@ -253,7 +246,6 @@ namespace RestaurantOnline.ViewModels
 
                 var menu = new Menu { Name = Name, CategoryId = SelectedCategory.CategoryId, DiscountPercent = 0 };
 
-                // Adăugăm preparatele selectate în meniu
                 foreach (var dishVM in SelectedDishes)
                 {
                     if (dishVM.Dish != null)
@@ -266,15 +258,12 @@ namespace RestaurantOnline.ViewModels
                     }
                 }
 
-                // Salvăm meniul în baza de date
                 try
                 {
                     await _menuService.AddAsync(menu);
 
-                    // Afișăm mesaj de succes
                     MessageBox.Show("Meniul a fost adăugat cu succes în baza de date!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Navigăm înapoi la lista de meniuri
                     _mainViewModel.NavigateToMenus();
                 }
                 catch (Exception ex)

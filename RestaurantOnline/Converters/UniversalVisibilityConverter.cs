@@ -13,7 +13,6 @@ namespace RestaurantOnline.Converters
             bool isVisible = false;
             bool invert = parameter is string paramStr && paramStr.ToLower() == "invert";
             
-            // Procesează în funcție de tipul de valoare
             if (value == null)
             {
                 isVisible = false;
@@ -36,10 +35,9 @@ namespace RestaurantOnline.Converters
             }
             else
             {
-                isVisible = true; // Alte tipuri de obiecte non-null considerăm că sunt vizibile
+                isVisible = true; 
             }
             
-            // Aplică inversa dacă este cerut
             if (invert)
             {
                 isVisible = !isVisible;

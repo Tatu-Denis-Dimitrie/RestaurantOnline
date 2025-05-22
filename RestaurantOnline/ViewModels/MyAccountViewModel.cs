@@ -74,7 +74,6 @@ namespace RestaurantOnline.ViewModels
 
             try
             {
-                // Forțăm context-ul să ignore cache-ul și să reîncarce datele din baza de date
                 var orders = await _orderService.GetComenziUtilizatorAsync(_currentUser.UserId);
                 Comenzi.Clear();
                 foreach (var order in orders)
@@ -106,12 +105,10 @@ namespace RestaurantOnline.ViewModels
                               $"Total: {order.FinalAmount:F2} lei\n\n" +
                               "Produse comandate:\n";
                 
-                // Grupăm produsele pe meniuri pentru o afișare mai clară
                 var menuGroups = order.OrderDishes
                     .GroupBy(od => od.MenuId)
                     .ToList();
                 
-                // 1. Mai întâi produsele individuale (MenuId == null)
                 var individualProducts = menuGroups
                     .FirstOrDefault(g => g.Key == null);
                 
@@ -125,7 +122,6 @@ namespace RestaurantOnline.ViewModels
                     detalii += "\n";
                 }
                 
-                // 2. Apoi produsele din meniuri, grupate pe meniuri
                 var menuProducts = menuGroups
                     .Where(g => g.Key.HasValue)
                     .ToList();
@@ -159,7 +155,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (order == null) return;
 
-            // Confirmă cu utilizatorul
             var result = MessageBox.Show(
                 $"Sigur doriți să anulați comanda #{order.OrderId}?",
                 "Confirmare anulare",
@@ -173,10 +168,8 @@ namespace RestaurantOnline.ViewModels
 
             try
             {
-                // IMPORTANT: Actualizează statusul comenzii în baza de date folosind OrderService
                 var success = await _orderService.ActualizeazaStareComandaAsync(order.OrderId, "anulata");
 
-                // Actualizează și local statusul comenzii pentru a reflecta imediat în UI
                 order.Status = "anulata";
                 MessageBox.Show(
                     $"Comanda #{order.OrderId} a fost anulată cu succes. Status modificat în baza de date.",
@@ -184,7 +177,6 @@ namespace RestaurantOnline.ViewModels
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                // Reîncărcăm comenzile pentru a reflecta schimbările din baza de date
                 LoadUserOrders();
             }
             catch (Exception ex)

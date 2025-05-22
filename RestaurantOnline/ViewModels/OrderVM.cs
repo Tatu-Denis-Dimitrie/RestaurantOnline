@@ -36,7 +36,6 @@ namespace RestaurantOnline.ViewModels
             _comenzi = new ObservableCollection<Order>();
             _comenziAfisate = new ObservableCollection<Order>();
             
-            // Lista statusurilor disponibile
             _availableStatuses = new List<string> 
             { 
                 "inregistrata", 
@@ -46,7 +45,6 @@ namespace RestaurantOnline.ViewModels
                 "anulata"
             };
             
-            // Inițializăm comenzile
             RefreshCommand = new RelayCommand(_ => LoadComenzi());
             DetaliiComandaCommand = new RelayCommand(_ => DetaliiComanda());
             SchimbaStatusCommand = new RelayCommand(_ => SchimbaStatusComanda(), _ => ComandaSelectata != null);
@@ -123,11 +121,9 @@ namespace RestaurantOnline.ViewModels
             {
                 var comenzi = await _comandaService.GetAllAsync();
                 
-                // Sortăm comenzile în ordine descrescătoare după dată și oră
                 var comenziSortate = comenzi.OrderByDescending(c => c.OrderDate).ToList();
                 Comenzi = new ObservableCollection<Order>(comenziSortate);
                 
-                // Actualizăm lista afișată pe baza filtrului curent
                 ActualizeazaComenziAfisate();
             }
             catch (System.Exception ex)
@@ -150,7 +146,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (ArataDoarComenziActive)
             {
-                // Comenzile active sunt cele care nu au statusul "livrata" sau "anulata"
                 var comenziActive = Comenzi.Where(c => 
                     c.Status != "livrata" && 
                     c.Status != "anulata").ToList();
@@ -159,7 +154,6 @@ namespace RestaurantOnline.ViewModels
             }
             else
             {
-                // Afișăm toate comenzile (sortate deja descrescător după dată)
                 ComenziAfisate = new ObservableCollection<Order>(Comenzi);
             }
         }
@@ -180,12 +174,10 @@ namespace RestaurantOnline.ViewModels
                           $"Adresă livrare: {ComandaSelectata.User?.DeliveryAddress ?? "N/A"}\n\n" +
                           "Produse comandate:\n";
             
-            // Grupăm produsele pe meniuri pentru o afișare mai clară
             var menuGroups = ComandaSelectata.OrderDishes
                 .GroupBy(od => od.MenuId)
                 .ToList();
             
-            // 1. Mai întâi produsele individuale (MenuId == null)
             var individualProducts = menuGroups
                 .FirstOrDefault(g => g.Key == null);
             
@@ -199,7 +191,6 @@ namespace RestaurantOnline.ViewModels
                 detalii += "\n";
             }
             
-            // 2. Apoi produsele din meniuri, grupate pe meniuri
             var menuProducts = menuGroups
                 .Where(g => g.Key.HasValue)
                 .ToList();
@@ -210,7 +201,6 @@ namespace RestaurantOnline.ViewModels
                 foreach (var menuGroup in menuProducts)
                 {
                     var menuId = menuGroup.Key.Value;
-                    // TODO: Încărca numele meniului din baza de date
                     detalii += $"Meniu #{menuId}:\n";
                     
                     foreach (var item in menuGroup)
@@ -228,7 +218,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (ComandaSelectata == null || string.IsNullOrEmpty(SelectedStatus)) return;
             
-            // Confirmă schimbarea statusului
             var result = MessageBox.Show(
                 $"Doriți să schimbați statusul comenzii #{ComandaSelectata.OrderId} din '{ComandaSelectata.Status}' în '{SelectedStatus}'?",
                 "Confirmare schimbare status",
@@ -246,7 +235,6 @@ namespace RestaurantOnline.ViewModels
                 
                 if (success)
                 {
-                    // Actualizează statusul local pentru a reflecta schimbarea
                     ComandaSelectata.Status = SelectedStatus;
                     MessageBox.Show(
                         $"Statusul comenzii #{ComandaSelectata.OrderId} a fost schimbat cu succes în '{SelectedStatus}'.",
@@ -254,8 +242,7 @@ namespace RestaurantOnline.ViewModels
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     
-                    // Reîmprospătează lista de comenzi
-                    await Task.Delay(500); // pauză mică pentru a lăsa DB să se actualizeze
+                    await Task.Delay(500); 
                     LoadComenzi();
                 }
                 else

@@ -78,21 +78,18 @@ namespace RestaurantOnline.Models
             set => SetProperty(ref _category, value);
         }
 
-        // Relatie one-to-many cu DishPhoto
         public virtual ObservableCollection<DishImage> Photos
         {
             get => _photos ??= new ObservableCollection<DishImage>();
             set => SetProperty(ref _photos, value);
         }
 
-        // Relatie many-to-many cu Allergen prin DishAllergen
         public virtual ObservableCollection<DishAllergen> DishAllergens
         {
             get => _dishAllergens ??= new ObservableCollection<DishAllergen>();
             set => SetProperty(ref _dishAllergens, value);
         }
 
-        // Relatie many-to-many cu Menu prin MenuDish
         public virtual ObservableCollection<MenuDish> MenuDishes
         {
             get => _menuDishes ??= new ObservableCollection<MenuDish>();

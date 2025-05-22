@@ -49,11 +49,9 @@ namespace RestaurantOnline.ViewModels
             CancelCommand = new RelayCommand(_ => CancelEdit());
             LoadDishDetailsCommand = new RelayCommand(_ => LoadDishDetails(), _ => SelectedDish != null);
 
-            // Încărcăm datele când se creează pagina
             _ = InitializeDataAsync();
         }
 
-        // Proprietăți
         public int DishId
         {
             get => _dishId;
@@ -185,7 +183,6 @@ namespace RestaurantOnline.ViewModels
         {
             try
             {
-                // Încărcăm alergenii din baza de date
                 var allergens = await _allergenService.GetAllAsync();
                 AllAllergens.Clear();
 
@@ -227,7 +224,6 @@ namespace RestaurantOnline.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                // Încărcăm detaliile complete ale preparatului
                 var dishDetails = await _dishService.GetByIdAsync(SelectedDish.DishId);
                 if (dishDetails == null)
                 {
@@ -235,23 +231,19 @@ namespace RestaurantOnline.ViewModels
                     return;
                 }
 
-                // Populăm câmpurile formularului cu datele preparatului
                 DishId = dishDetails.DishId;
                 Name = dishDetails.Name;
                 Price = dishDetails.Price;
                 PortionSizeGrams = dishDetails.PortionSizeGrams;
                 TotalQuantityGrams = dishDetails.TotalQuantityGrams;
 
-                // Setăm categoria selectată
                 SelectedCategory = Categories.FirstOrDefault(c => c.CategoryId == dishDetails.CategoryId);
 
-                // Marcăm alergenii selectați
                 foreach (var allergenVM in AllAllergens)
                 {
                     allergenVM.IsSelected = dishDetails.DishAllergens.Any(da => da.AllergenId == allergenVM.Allergen.AllergenId);
                 }
 
-                // Setăm numele imaginii (dacă există)
                 if (dishDetails.Photos.Count > 0)
                 {
                     var photoUrl = dishDetails.Photos[0].Url;
@@ -304,7 +296,6 @@ namespace RestaurantOnline.ViewModels
             {
                 IsLoading = true;
 
-                // Obținem preparatul existent
                 var existingDish = await _dishService.GetByIdAsync(DishId);
                 if (existingDish == null)
                 {
@@ -312,7 +303,6 @@ namespace RestaurantOnline.ViewModels
                     return;
                 }
 
-                // Actualizăm proprietățile preparatului
                 existingDish.Name = Name;
                 existingDish.Price = Price;
                 existingDish.PortionSizeGrams = PortionSizeGrams;
@@ -320,13 +310,10 @@ namespace RestaurantOnline.ViewModels
                 existingDish.CategoryId = SelectedCategory.CategoryId;
                 existingDish.Category = SelectedCategory;
 
-                // Actualizăm alergenii
                 var selectedAllergens = AllAllergens.Where(a => a.IsSelected).ToList();
 
-                // Curățăm colecția existentă
                 existingDish.DishAllergens.Clear();
 
-                // Adăugăm alergenii selectați
                 foreach (var allergenVM in selectedAllergens)
                 {
                     existingDish.DishAllergens.Add(new DishAllergen
@@ -337,18 +324,15 @@ namespace RestaurantOnline.ViewModels
                     });
                 }
 
-                // Actualizăm imaginea dacă s-a schimbat
                 if (!string.IsNullOrWhiteSpace(PhotoName))
                 {
                     var photoUrl = $"Imagini/{PhotoName}";
                     if (existingDish.Photos.Count > 0)
                     {
-                        // Actualizăm imaginea existentă
                         existingDish.Photos[0].Url = photoUrl;
                     }
                     else
                     {
-                        // Adăugăm o imagine nouă
                         existingDish.Photos.Add(new DishImage
                         {
                             DishId = DishId,
@@ -357,18 +341,14 @@ namespace RestaurantOnline.ViewModels
                     }
                 }
 
-                // Salvăm modificările în baza de date
                 try
                 {
                     await _dishService.UpdateWithAllergensAsync(existingDish);
 
-                    // Afișăm mesaj de succes
                     MessageBox.Show("Preparatul a fost actualizat cu succes!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Reîncărcăm lista de preparate
                     await LoadDishesAsync();
 
-                    // Resetăm formularul
                     ClearForm();
                 }
                 catch (Exception ex)
@@ -408,7 +388,6 @@ namespace RestaurantOnline.ViewModels
             PhotoName = string.Empty;
             SelectedDish = null;
 
-            // Resetăm alergenii
             foreach (var allergenVM in AllAllergens)
             {
                 allergenVM.IsSelected = false;

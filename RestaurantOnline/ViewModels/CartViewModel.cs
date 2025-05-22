@@ -44,7 +44,6 @@ namespace RestaurantOnline.ViewModels
             PlaceOrderCommand = new RelayCommand(_ => PlaceOrder(), _ => CanPlaceOrder());
             ContinueShoppingCommand = new RelayCommand(_ => _mainViewModel.NavigateToDishes());
             
-            // Încărcăm configurația pentru reducere și taxe de livrare
             LoadDiscountSettings();
             LoadDeliveryFeeSettings();
             
@@ -60,7 +59,6 @@ namespace RestaurantOnline.ViewModels
                 {
                     var clientDiscountsSection = configuration.GetSection("ClientDiscounts");
                     
-                    // Încărcăm setările pentru reducerea de loialitate
                     var loyaltySection = clientDiscountsSection.GetSection("LoyaltyDiscount");
                     
                     string minimumOrdersStr = loyaltySection["MinimumOrders"];
@@ -76,7 +74,6 @@ namespace RestaurantOnline.ViewModels
                         _discountPercent = discountPercent;
                     }
                     
-                    // Încărcăm setările pentru reducerea bazată pe valoarea comenzii
                     var orderValueSection = clientDiscountsSection.GetSection("OrderValueDiscount");
                     
                     string minimumOrderValueStr = orderValueSection["MinimumOrderValue"];
@@ -92,14 +89,10 @@ namespace RestaurantOnline.ViewModels
                         _orderValueDiscountPercent = orderValueDiscountPercent;
                     }
                     
-                    System.Diagnostics.Debug.WriteLine($"Setări reduceri: Loialitate: {_minimumOrdersForDiscount} comenzi / {_discountPercent}%, Valoare comandă: {_minimumOrderValue} lei / {_orderValueDiscountPercent}%");
                 }
             }
             catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Eroare la încărcarea setărilor de reducere: {ex.Message}");
-                // Folosim valorile implicite definite mai sus
-            }
+            {}
         }
         
         private void LoadDeliveryFeeSettings()
@@ -114,37 +107,27 @@ namespace RestaurantOnline.ViewModels
                     string standardFeeStr = deliveryFeesSection["StandardFee"];
                     string freeDeliveryThresholdStr = deliveryFeesSection["FreeDeliveryThreshold"];
                     
-                    System.Diagnostics.Debug.WriteLine($"Valoarea brută din configurație pentru taxa de livrare: '{standardFeeStr}'");
                     
                     if (!string.IsNullOrEmpty(standardFeeStr))
                     {
-                        // Utilizăm CultureInfo.InvariantCulture pentru a evita probleme cu separatorul zecimal
                         if (decimal.TryParse(standardFeeStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal standardFee))
                         {
                             _standardDeliveryFee = standardFee;
-                            System.Diagnostics.Debug.WriteLine($"Taxa de livrare parsată corect: {_standardDeliveryFee}");
                         }
                         else
                         {
-                            // Încercăm să înlocuim punctul cu virgulă și invers
                             string alternateFormat = standardFeeStr.Replace('.', ',');
                             if (decimal.TryParse(alternateFormat, out standardFee))
                             {
                                 _standardDeliveryFee = standardFee;
-                                System.Diagnostics.Debug.WriteLine($"Taxa de livrare parsată după conversie: {_standardDeliveryFee}");
                             }
                             else
                             {
-                                System.Diagnostics.Debug.WriteLine($"Eroare la parsarea taxei de livrare: {standardFeeStr}");
-                                _standardDeliveryFee = 15.00m; // Valoare implicită în caz de eroare
+                                _standardDeliveryFee = 15.00m;
                             }
                         }
                     }
                     
-                    // Verificăm valoarea după parsare
-                    System.Diagnostics.Debug.WriteLine($"Valoarea finală pentru taxa de livrare este: {_standardDeliveryFee} (de tip {_standardDeliveryFee.GetType().Name})");
-                    
-                    // Verificăm și parsarea pentru pragul de livrare gratuită
                     if (!string.IsNullOrEmpty(freeDeliveryThresholdStr))
                     {
                         if (decimal.TryParse(freeDeliveryThresholdStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal freeDeliveryThreshold))
@@ -153,18 +136,13 @@ namespace RestaurantOnline.ViewModels
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine($"Eroare la parsarea pragului pentru livrare gratuită: {freeDeliveryThresholdStr}");
-                            _freeDeliveryThreshold = 50.00m; // Valoare implicită în caz de eroare
+                            _freeDeliveryThreshold = 50.00m;
                         }
                     }
-                    
-                    System.Diagnostics.Debug.WriteLine($"Setări taxe livrare: Taxa: {_standardDeliveryFee:F2} lei, Prag gratuită: {_freeDeliveryThreshold:F2} lei");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Eroare la încărcarea setărilor pentru taxa de livrare: {ex.Message}");
-                // Folosim valorile implicite definite mai sus
                 _standardDeliveryFee = 15.00m;
                 _freeDeliveryThreshold = 50.00m;
             }
@@ -241,7 +219,6 @@ namespace RestaurantOnline.ViewModels
                 if (subtotalProducts >= _freeDeliveryThreshold)
                     return "Livrare gratuită (pentru comenzi peste 50,00 lei)";
                 else
-                    // Utilizăm formatul cu virgulă pentru a fi mai clar în UI
                     return string.Format(CultureInfo.CurrentCulture, "Taxă de livrare: {0:0.00} lei", _standardDeliveryFee);
             }
         }
@@ -286,14 +263,12 @@ namespace RestaurantOnline.ViewModels
             
             try
             {
-                // Mai întâi încărcăm meniul complet cu toate relațiile sale
                 var menuService = ((App)Application.Current).ServiceProvider.GetService(typeof(IRestaurantS<Menu>)) as IRestaurantS<Menu>;
                 if (menuService != null)
                 {
                     var completeMenu = await menuService.GetByIdAsync(menu.MenuId);
                     if (completeMenu != null)
                     {
-                        // Găsim dacă meniul există deja în coș
                         var existingItem = CartItems.FirstOrDefault(item => 
                             item.IsMenuDish == true && 
                             item.Menu != null && 
@@ -301,10 +276,8 @@ namespace RestaurantOnline.ViewModels
                             
                         if (existingItem != null)
                         {
-                            // Dacă meniul există deja, incrementăm cantitatea
                             existingItem.Quantity += quantity;
                             
-                            // Afișăm mesaj cu cantitatea actualizată
                             if (showMessage)
                             {
                                 MessageBox.Show($"Cantitatea pentru meniul '{completeMenu.Name}' a fost actualizată la {existingItem.Quantity}.", 
@@ -313,10 +286,8 @@ namespace RestaurantOnline.ViewModels
                         }
                         else
                         {
-                            // Dacă meniul nu există, îl adăugăm
                             CartItems.Add(new CartItem { Menu = completeMenu, Quantity = quantity, IsMenuDish = true });
                             
-                            // Afișăm mesaj de confirmare pentru adăugare
                             if (showMessage)
                             {
                                 MessageBox.Show($"Meniul '{completeMenu.Name}' a fost adăugat în coș.", 
@@ -353,7 +324,6 @@ namespace RestaurantOnline.ViewModels
         {
             decimal productTotal = CartItems.Sum(item => item.LineTotal);
             
-            // Calculăm taxa de livrare în funcție de valoarea produselor
             decimal deliveryFee = 0;
             
             if (CartItems.Count > 0)
@@ -361,36 +331,25 @@ namespace RestaurantOnline.ViewModels
                 if (productTotal >= _freeDeliveryThreshold)
                 {
                     deliveryFee = 0; // Livrare gratuită
-                    System.Diagnostics.Debug.WriteLine($"Livrare gratuită pentru că valoarea comenzii ({productTotal:F2} lei) este peste pragul de {_freeDeliveryThreshold:F2} lei");
                 }
                 else
                 {
-                    // Ne asigurăm că folosim valoarea corectă, forțând tipul
                     deliveryFee = _standardDeliveryFee;
-                    System.Diagnostics.Debug.WriteLine($"Se aplică taxa de livrare de {deliveryFee:F2} lei pentru că valoarea comenzii ({productTotal:F2} lei) este sub pragul de {_freeDeliveryThreshold:F2} lei");
                 }
             }
             
-            // Verificăm valoarea taxei înainte de a o atribui
-            System.Diagnostics.Debug.WriteLine($"Taxa de livrare calculată: {deliveryFee:F2} lei (de tip {deliveryFee.GetType().Name})");
-            
-            // Actualizăm proprietatea pentru afișare
             DeliveryFee = deliveryFee;
             
-            // Setăm suma inițială fără reduceri
             decimal subTotal = productTotal + deliveryFee;
             OriginalAmount = subTotal;
             
-            // Inițializăm sumele pentru reduceri
             DiscountAmount = 0;
             OrderValueDiscountAmount = 0;
             
-            // Variabile pentru a ține evidența reducerilor aplicate
             bool loyaltyDiscountApplied = false;
             bool orderValueDiscountApplied = false;
             decimal totalDiscountAmount = 0;
             
-            // 1. Verificăm dacă utilizatorul e eligibil pentru reducerea de client fidel
             if (_mainViewModel.IsUserLoggedIn && _mainViewModel.CurrentUser != null)
             {
                 try 
@@ -400,59 +359,39 @@ namespace RestaurantOnline.ViewModels
                     
                     loyaltyDiscountApplied = orderCount >= _minimumOrdersForDiscount;
                     
-                    // Afișăm în consolă pentru debug
-                    System.Diagnostics.Debug.WriteLine($"Utilizatorul {userId} are {orderCount} comenzi livrate în ultimele 30 zile. Prag pentru reducere: {_minimumOrdersForDiscount}");
                     
                     if (loyaltyDiscountApplied)
                     {
                         DiscountAmount = subTotal * ((decimal)_discountPercent / 100);
                         totalDiscountAmount += DiscountAmount;
-                        System.Diagnostics.Debug.WriteLine($"S-a aplicat reducere de loialitate de {_discountPercent}%. Reducere: {DiscountAmount:F2} lei");
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Nu s-a aplicat reducere de loialitate - nu are suficiente comenzi în ultimele 30 zile.");
                     }
                 }
                 catch (Exception ex)
                 {
                     ErrorMessage = $"Eroare la calculul reducerii de loialitate: {ex.Message}";
-                    System.Diagnostics.Debug.WriteLine($"Eroare la calculul reducerii de loialitate: {ex.Message}");
                 }
             }
             
-            // 2. Verificăm dacă comanda îndeplinește criteriul pentru reducerea bazată pe valoare
             try
             {
-                // Verificăm doar valoarea produselor, nu și taxa de livrare
                 if (productTotal >= _minimumOrderValue)
                 {
                     orderValueDiscountApplied = true;
                     OrderValueDiscountAmount = subTotal * ((decimal)_orderValueDiscountPercent / 100);
                     totalDiscountAmount += OrderValueDiscountAmount;
                     
-                    System.Diagnostics.Debug.WriteLine($"S-a aplicat reducere pentru valoare comenzii peste {_minimumOrderValue:F2} lei. Reducere: {OrderValueDiscountAmount:F2} lei");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"Nu s-a aplicat reducere pentru valoarea comenzii. Valoare actuală: {productTotal:F2} lei, prag minim: {_minimumOrderValue:F2} lei");
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Eroare la calculul reducerii pentru valoarea comenzii: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine($"Eroare la calculul reducerii pentru valoarea comenzii: {ex.Message}");
             }
             
-            // Actualizăm proprietățile pentru afișare
             DiscountApplied = loyaltyDiscountApplied;
             OrderValueDiscountApplied = orderValueDiscountApplied;
             
-            // Calculăm totalul final după aplicarea tuturor reducerilor
             TotalAmount = OriginalAmount - totalDiscountAmount;
-            System.Diagnostics.Debug.WriteLine($"Sumă inițială: {OriginalAmount:F2} lei, Reduceri totale: {totalDiscountAmount:F2} lei, Sumă finală: {TotalAmount:F2} lei");
             
-            // Notificăm UI-ul că proprietățile s-au schimbat
             OnPropertyChanged(nameof(DiscountInfo));
             OnPropertyChanged(nameof(OrderValueDiscountInfo));
             OnPropertyChanged(nameof(DeliveryFeeInfo));
@@ -464,17 +403,14 @@ namespace RestaurantOnline.ViewModels
             {
                 var comenzi = await _orderService.GetComenziUtilizatorAsync(userId);
                 
-                // Calculăm data de acum 30 de zile
                 DateTime dataLimita = DateTime.Now.AddDays(-30);
                 
-                // Filtrăm comenzile livrate din ultimele 30 de zile
                 return comenzi.Count(c => 
                     c.Status.ToLower() == "livrata" && 
                     c.OrderDate >= dataLimita);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Eroare la numărarea comenzilor: {ex.Message}");
                 return 0;
             }
         }
@@ -503,27 +439,23 @@ namespace RestaurantOnline.ViewModels
                 }
             }
             
-            // Copiem itemele din coș pentru a le utiliza în procesare
             var cartItemsCopy = new List<CartItem>(CartItems);
             
             try
             {
-                // Verificare stoc pentru preparate individuale și din meniuri
                 bool stockIsAvailable = await VerifyStockAvailability(cartItemsCopy);
                 if (!stockIsAvailable)
                 {
-                    return; // Mesajele de eroare sunt afișate în metoda de verificare
+                    return; 
                 }
                 
                 decimal productTotal = cartItemsCopy.Sum(item => item.LineTotal);
                 
-                // Calculăm taxa de transport în funcție de valoarea comenzii
                 decimal deliveryFee;
                 
-                // Verificăm explicit valoarea înaintea atribuirii
                 if (productTotal >= _freeDeliveryThreshold)
                 {
-                    deliveryFee = 0; // Livrare gratuită
+                    deliveryFee = 0;
                 }
                 else
                 {
@@ -532,7 +464,6 @@ namespace RestaurantOnline.ViewModels
                 
                 decimal finalAmount = productTotal + deliveryFee;
                 
-                // Aplicăm reducerile, dacă este cazul
                 decimal totalDiscount = 0;
                 
                 if (DiscountApplied)
@@ -547,7 +478,6 @@ namespace RestaurantOnline.ViewModels
                 
                 finalAmount -= totalDiscount;
                 
-                // Creăm modelul de comandă
                 var order = new Order
                 {
                     UserId = _mainViewModel.CurrentUser.UserId,
@@ -557,16 +487,12 @@ namespace RestaurantOnline.ViewModels
                     FinalAmount = finalAmount
                 };
 
-                // Salvăm comanda și procesăm toate detaliile utilizând un task separat
                 int orderId = 0;
                 
                 try
                 {
-                    // Folosim un task separat pentru operațiunile de bază de date
-                    // și așteaptăm complet finalizarea acestuia
                     orderId = await Task.Run(async () => 
                     {
-                        // Salvăm comanda principală
                         var savedOrder = await _orderService.AddAsync(order);
                         if (savedOrder == null || savedOrder.OrderId <= 0)
                         {
@@ -575,35 +501,27 @@ namespace RestaurantOnline.ViewModels
                         
                         int newOrderId = savedOrder.OrderId;
                         
-                        // Procesăm produsele individuale
                         await ProcessIndividualProductsAsync(newOrderId, cartItemsCopy);
                         
-                        // Procesăm produsele din meniuri
                         await ProcessMenuProductsAsync(newOrderId, cartItemsCopy);
                         
                         return newOrderId;
                     });
                     
-                    // Verificăm că avem un ID valid
                     if (orderId <= 0)
                     {
                         throw new Exception("ID-ul comenzii nu este valid");
                     }
                     
-                    // Afișăm mesaj de succes
                     MessageBox.Show($"Comanda dumneavoastră a fost înregistrată cu succes.\nNumăr comandă: {orderId}\nTotal: {finalAmount:F2} lei (inclusiv taxa de transport: {deliveryFee:F2} lei)", 
                         "Comandă plasată", MessageBoxButton.OK, MessageBoxImage.Information);
                     
-                    // Curățăm coșul
                     CartItems.Clear();
                     SaveCartToSession();
                     CalculateTotalAmount();
                     
-                    // Ne asigurăm că toate operațiunile anterioare sunt finalizate
-                    // înainte de a naviga către o altă pagină
                     await Task.Delay(100);
                     
-                    // Navigăm înapoi la preparate folosind thread-ul UI
                     Application.Current.Dispatcher.Invoke(() => 
                     {
                         _mainViewModel.NavigateToDishes();
@@ -613,18 +531,12 @@ namespace RestaurantOnline.ViewModels
                 {
                     MessageBox.Show($"Eroare la salvarea comenzii: {ex.Message}", 
                         "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
-                    System.Diagnostics.Debug.WriteLine($"Eroare la procesarea comenzii: {ex.Message}");
-                    if (ex.InnerException != null)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                    }
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Eroare la plasarea comenzii: {ex.Message}";
                 
-                // Obținem mai multe detalii despre excepție
                 string detaliiEroare = ex.Message;
                 
                 if (ex.InnerException != null)
@@ -634,20 +546,11 @@ namespace RestaurantOnline.ViewModels
                 
                 MessageBox.Show($"A apărut o eroare la plasarea comenzii:\n{detaliiEroare}", 
                     "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
-                
-                // Scriem și în consolă pentru debugging
-                System.Diagnostics.Debug.WriteLine($"Eroare la plasarea comenzii: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
             }
         }
         
-        // Metodă separată pentru verificarea stocului disponibil
         private async Task<bool> VerifyStockAvailability(List<CartItem> cartItems)
         {
-            // Verificare stoc pentru preparate individuale
             foreach (var item in cartItems.Where(i => !i.IsMenuDish && i.Dish != null))
             {
                 var dish = await _dishService.GetByIdAsync(item.Dish.DishId);
@@ -670,7 +573,6 @@ namespace RestaurantOnline.ViewModels
                 }
             }
             
-            // Verificare stoc pentru preparate din meniuri
             foreach (var item in cartItems.Where(i => i.IsMenuDish && i.Menu != null))
             {
                 foreach (var menuDish in item.Menu.MenuDishes)
@@ -699,7 +601,6 @@ namespace RestaurantOnline.ViewModels
             return true;
         }
         
-        // Metodă separată pentru procesarea preparatelor individuale
         private async Task ProcessIndividualProductsAsync(int orderId, List<CartItem> cartItems)
         {
             foreach (var item in cartItems.Where(i => !i.IsMenuDish && i.Dish != null))
@@ -714,7 +615,6 @@ namespace RestaurantOnline.ViewModels
                 
                 await _orderService.AddOrderDishAsync(orderDish);
                 
-                // Actualizăm stocul
                 var dish = await _dishService.GetByIdAsync(item.Dish.DishId);
                 if (dish != null)
                 {
@@ -725,7 +625,6 @@ namespace RestaurantOnline.ViewModels
             }
         }
         
-        // Metodă separată pentru procesarea produselor din meniuri
         private async Task ProcessMenuProductsAsync(int orderId, List<CartItem> cartItems)
         {
             foreach (var item in cartItems.Where(i => i.IsMenuDish && i.Menu != null))
@@ -742,7 +641,6 @@ namespace RestaurantOnline.ViewModels
                     
                     await _orderService.AddOrderDishAsync(orderDish);
                     
-                    // Actualizăm stocul
                     var dish = await _dishService.GetByIdAsync(menuDish.Dish.DishId);
                     if (dish != null)
                     {
@@ -781,15 +679,13 @@ namespace RestaurantOnline.ViewModels
         {
             try
             {
-                // Încărcăm coșul din sesiune
                 LoadCartFromSession();
                 
                 if (CartItems.Count == 0)
                 {
-                    return; // Nu avem ce actualiza dacă coșul este gol
+                    return;
                 }
                 
-                // Pentru fiecare element din coș, reîncărcăm datele complete
                 var updatedItems = new ObservableCollection<CartItem>();
                 var errorEncountered = false;
                 
@@ -799,7 +695,6 @@ namespace RestaurantOnline.ViewModels
                     {
                         if (item.IsMenuDish && item.Menu != null)
                         {
-                            // Reîncărcăm meniul cu toate detaliile sale
                             var menuService = ((App)Application.Current).ServiceProvider.GetService(typeof(IRestaurantS<Menu>)) as IRestaurantS<Menu>;
                             if (menuService != null)
                             {
@@ -815,21 +710,18 @@ namespace RestaurantOnline.ViewModels
                                 }
                                 else
                                 {
-                                    // Păstrăm itemul original dacă nu se poate reîncărca
                                     updatedItems.Add(item);
                                     errorEncountered = true;
                                 }
                             }
                             else
                             {
-                                // Păstrăm itemul original dacă nu putem obține serviciul
                                 updatedItems.Add(item);
                                 errorEncountered = true;
                             }
                         }
                         else if (!item.IsMenuDish && item.Dish != null)
                         {
-                            // Reîncărcăm preparatul cu toate detaliile sale
                             var completeDish = await _dishService.GetByIdAsync(item.Dish.DishId);
                             if (completeDish != null)
                             {
@@ -842,34 +734,28 @@ namespace RestaurantOnline.ViewModels
                             }
                             else
                             {
-                                // Păstrăm itemul original dacă nu se poate reîncărca
                                 updatedItems.Add(item);
                                 errorEncountered = true;
                             }
                         }
                         else
                         {
-                            // Dacă avem un item care nu este valid, îl păstrăm oricum pentru a nu pierde date
                             updatedItems.Add(item);
                             errorEncountered = true;
                         }
                     }
                     catch (Exception ex)
                     {
-                        // În caz de eroare, păstrăm itemul original
                         updatedItems.Add(item);
                         errorEncountered = true;
-                        System.Diagnostics.Debug.WriteLine($"Eroare la reîncărcarea unui item: {ex.Message}");
                     }
                 }
                 
                 if (errorEncountered)
                 {
                     ErrorMessage = "Unele produse nu au putut fi reîmprospătate complet.";
-                    System.Diagnostics.Debug.WriteLine("Unele produse din coș nu au putut fi reîmprospătate complet.");
                 }
                 
-                // Actualizăm coșul curent și cel din sesiune, doar dacă avem iteme actualizate
                 if (updatedItems.Count > 0)
                 {
                     CartItems = updatedItems;
@@ -880,8 +766,6 @@ namespace RestaurantOnline.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Eroare la reîmprospătarea coșului: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine($"Eroare la reîmprospătarea coșului: {ex.Message}");
-                // Nu golim coșul în caz de eroare, păstrăm ce aveam înainte
             }
         }
     }

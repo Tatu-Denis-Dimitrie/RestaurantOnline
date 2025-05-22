@@ -114,7 +114,7 @@ namespace RestaurantOnline.ViewModels
             }
         }
 
-        public string FormTitle => IsLoginMode ? "Autentificare" : "inregistrare";
+        public string FormTitle => IsLoginMode ? "Autentificare" : "Inregistrare";
         public System.Windows.Visibility LoginButtonVisibility => IsLoginMode ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         public System.Windows.Visibility RegisterButtonVisibility => IsLoginMode ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         public System.Windows.Visibility RegisterFieldsVisibility => IsLoginMode ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
@@ -165,12 +165,12 @@ namespace RestaurantOnline.ViewModels
                 var utilizator = new User
                 {
                     Email = Email,
-                    Password = Parola, // in productie, parola ar trebui hash-uita
+                    Password = Parola, 
                     FirstName = Nume,
                     LastName = Prenume,
                     Phone = Telefon,
                     DeliveryAddress = AdresaLivrare,
-                    Role = "Client" // Rol implicit pentru utilizatorii noi
+                    Role = "Client" 
                 };
 
                 _ServiceUser.Adauga(utilizator);

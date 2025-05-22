@@ -63,7 +63,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (utilizator == null) return;
 
-            // Nu permitem stergerea utilizatorului curent (daca este acelasi)
             if (utilizator.Role == "Angajat")
             {
                 MessageBox.Show("Nu poti sterge un utilizator cu rol de Angajat.", "Restrictie",
@@ -88,7 +87,6 @@ namespace RestaurantOnline.ViewModels
                         MessageBox.Show("Utilizatorul a fost sters cu succes.", "Succes",
                             MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        // Reincarcam lista de utilizatori
                         LoadDataAsync();
                     }
                     else
@@ -138,7 +136,6 @@ namespace RestaurantOnline.ViewModels
                         MessageBox.Show($"Utilizatorul a fost {(utilizator.Role == "Angajat" ? "retrogradat" : "promovat")} cu succes la rolul de {rolNou}.",
                             "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        // Reincarcam lista de utilizatori
                         LoadDataAsync();
                     }
                     else

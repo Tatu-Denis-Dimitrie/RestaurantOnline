@@ -8,7 +8,6 @@ namespace RestaurantOnline.Data
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options)
             : base(options)
         {
-            // Setam comportamentul de tracking implicit la NoTracking pentru toate interogarile
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
@@ -28,11 +27,9 @@ namespace RestaurantOnline.Data
             base.OnModelCreating(modelBuilder);
 
             
-            // Configurare pentru Category
             modelBuilder.Entity<Category>()
                 .ToTable("Categories");
             
-            // Configurare pentru Dish
             modelBuilder.Entity<Dish>()
                 .ToTable("Dishes");
             
@@ -42,7 +39,6 @@ namespace RestaurantOnline.Data
                 .HasForeignKey(p => p.CategoryId)
                 .IsRequired();
             
-            // Configurare pentru DishPhoto
             modelBuilder.Entity<DishImage>()
                 .ToTable("DishPhotos");
             
@@ -51,11 +47,9 @@ namespace RestaurantOnline.Data
                 .WithMany(p => p.Photos)
                 .HasForeignKey(f => f.DishId);
             
-            // Configurare pentru Allergen
             modelBuilder.Entity<Allergen>()
                 .ToTable("Allergens");
             
-            // Configurare pentru DishAllergen (many-to-many)
             modelBuilder.Entity<DishAllergen>()
                 .ToTable("DishAllergen");
             
@@ -72,11 +66,9 @@ namespace RestaurantOnline.Data
                 .WithMany(a => a.DishAllergens)
                 .HasForeignKey(pa => pa.AllergenId);
             
-            // Configurare pentru Menu
             modelBuilder.Entity<Menu>()
                 .ToTable("Menus");
             
-            // Configurare pentru MenuDish (many-to-many)
             modelBuilder.Entity<MenuDish>()
                 .ToTable("MenuDish");
             
@@ -93,11 +85,9 @@ namespace RestaurantOnline.Data
                 .WithMany(p => p.MenuDishes)
                 .HasForeignKey(mp => mp.DishId);
             
-            // Configurare pentru User
             modelBuilder.Entity<User>()
                 .ToTable("Users");
             
-            // Configurare pentru Order
             modelBuilder.Entity<Order>()
                 .ToTable("Orders");
             
@@ -106,7 +96,6 @@ namespace RestaurantOnline.Data
                 .WithMany(u => u.Orders)
                 .HasForeignKey(c => c.UserId);
             
-            // Configurare pentru OrderDish (many-to-many)
             modelBuilder.Entity<OrderDish>()
                 .ToTable("OrderDish");
             

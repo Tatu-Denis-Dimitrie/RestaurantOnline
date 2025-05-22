@@ -15,15 +15,5 @@ namespace RestaurantOnline.Views
         {
             InitializeComponent();
         }
-
-        private void Image_ImageFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-            Image img = sender as Image;
-            Debug.WriteLine($"Eroare la incarcarea imaginii: {e.ErrorException.Message}");
-            if (img != null && img.Source is BitmapImage bitmapImage)
-            {
-                Debug.WriteLine($"Sursa imaginii: {bitmapImage.UriSource}");
-            }
-        }
     }
 } 

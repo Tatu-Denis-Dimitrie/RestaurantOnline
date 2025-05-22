@@ -105,14 +105,12 @@ namespace RestaurantOnline.ViewModels
             {
                 if (SelectedCategory == null)
                 {
-                    // Adaugă categorie nouă
                     var newCategory = new Category { Name = NewCategoryName };
                     await _categoryService.AddAsync(newCategory);
                     MessageBox.Show("Categoria a fost adăugată cu succes.", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Actualizează categorie existentă
                     SelectedCategory.Name = NewCategoryName;
                     await _categoryService.UpdateAsync(SelectedCategory);
                     MessageBox.Show("Categoria a fost actualizată cu succes.", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -141,7 +139,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (SelectedCategory == null) return;
 
-            // Confirmăm ștergerea
             var result = MessageBox.Show(
                 $"Sigur doriți să ștergeți categoria '{SelectedCategory.Name}'?",
                 "Confirmare ștergere",

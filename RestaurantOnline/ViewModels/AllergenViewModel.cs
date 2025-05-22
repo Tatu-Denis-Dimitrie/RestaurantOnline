@@ -104,14 +104,12 @@ namespace RestaurantOnline.ViewModels
             {
                 if (SelectedAllergen == null)
                 {
-                    // Adaugă alergen nou
                     var newAllergen = new Allergen { Name = NewAllergenName };
                     await _allergenService.AddAsync(newAllergen);
                     MessageBox.Show("Alergenul a fost adăugat cu succes.", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Actualizează alergen existent
                     SelectedAllergen.Name = NewAllergenName;
                     await _allergenService.UpdateAsync(SelectedAllergen);
                     MessageBox.Show("Alergenul a fost actualizat cu succes.", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -140,7 +138,6 @@ namespace RestaurantOnline.ViewModels
         {
             if (SelectedAllergen == null) return;
 
-            // Confirmăm ștergerea
             var result = MessageBox.Show(
                 $"Sigur doriți să ștergeți alergenul '{SelectedAllergen.Name}'?",
                 "Confirmare ștergere",

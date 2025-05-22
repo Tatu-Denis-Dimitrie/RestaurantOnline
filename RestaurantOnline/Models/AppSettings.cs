@@ -2,8 +2,8 @@ namespace RestaurantOnline.Models
 {
     public class AppSettings
     {
-        public int StockThreshold { get; set; } = 1000; // Valoare implicită în caz că nu se poate citi configurarea
-        public int MenuDiscountPercent { get; set; } = 0; // Procentul de reducere pentru meniuri (0 = fără reducere)
+        public int StockThreshold { get; set; } = 1000; 
+        public int MenuDiscountPercent { get; set; } = 0; 
     }
 
     public class ClientDiscountSettings
@@ -28,9 +28,9 @@ namespace RestaurantOnline.Models
     
     public class DeliveryFeeSettings
     {
-        public decimal StandardFee { get; set; } = 10.00m; // Taxa standard de livrare
-        public decimal IncreasedFee { get; set; } = 15.00m; // Taxa mărită de livrare pentru comenzi mici
-        public decimal FreeDeliveryThreshold { get; set; } = 0; // Pragul pentru livrare gratuită (0 = niciodată)
-        public decimal IncreasedFeeThreshold { get; set; } = 50.00m; // Pragul sub care se aplică taxa mărită
+        public decimal StandardFee { get; set; } = 10.00m;
+        public decimal IncreasedFee { get; set; } = 15.00m; 
+        public decimal FreeDeliveryThreshold { get; set; } = 0;
+        public decimal IncreasedFeeThreshold { get; set; } = 50.00m;
     }
 } 

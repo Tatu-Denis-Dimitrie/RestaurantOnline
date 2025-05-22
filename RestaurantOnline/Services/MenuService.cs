@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RestaurantOnline.Services
 {
@@ -19,7 +20,6 @@ namespace RestaurantOnline.Services
 
         public override async Task<ObservableCollection<Menu>> GetAllAsync()
         {
-            // Încărcăm meniurile și includem relațiile necesare pentru a afișa preparatele
             var menus = await _context.Menus
                 .Include(m => m.Category)
                 .Include(m => m.MenuDishes)
@@ -28,7 +28,6 @@ namespace RestaurantOnline.Services
                 .AsNoTracking()
                 .ToListAsync();
 
-            // Încărcăm manual alergenii pentru fiecare preparat
             foreach (var menu in menus)
             {
                 foreach (var menuDish in menu.MenuDishes)
@@ -48,7 +47,6 @@ namespace RestaurantOnline.Services
                     }
                 }
                 
-                // Aplicăm reducerea pentru meniu dacă este configurată
                 if (_appSettings.MenuDiscountPercent > 0)
                 {
                     menu.DiscountPercent = _appSettings.MenuDiscountPercent;
@@ -72,7 +70,6 @@ namespace RestaurantOnline.Services
 
                 if (menu != null)
                 {
-                    // Încărcăm manual alergenii pentru fiecare preparat
                     foreach (var menuDish in menu.MenuDishes)
                     {
                         if (menuDish.Dish != null)
@@ -90,7 +87,6 @@ namespace RestaurantOnline.Services
                         }
                     }
                     
-                    // Aplicăm reducerea pentru meniu dacă este configurată
                     if (_appSettings.MenuDiscountPercent > 0)
                     {
                         menu.DiscountPercent = _appSettings.MenuDiscountPercent;
@@ -106,24 +102,19 @@ namespace RestaurantOnline.Services
         {
             try
             {
-                // Resetam starea de tracking pentru a evita probleme cu entitati duplicate
                 _context.ChangeTracker.Clear();
                 
                 if (!(id is int menuId))
                     return false;
                 
-                // Verificăm dacă meniul este prezent în comenzi
                 bool existsInOrders = await _context.OrderDishes
                     .AnyAsync(od => od.MenuId == menuId);
                 
                 if (existsInOrders)
                 {
-                    // Nu putem șterge un meniu care este folosit în comenzi
-                    Console.WriteLine($"Meniul cu id-ul {menuId} nu poate fi șters deoarece există comenzi care îl conțin.");
                     return false;
                 }
                 
-                // Găsim meniul cu toate relațiile sale
                 var menu = await _context.Menus
                     .Include(m => m.MenuDishes)
                     .FirstOrDefaultAsync(m => m.MenuId == menuId);
@@ -131,25 +122,68 @@ namespace RestaurantOnline.Services
                 if (menu == null)
                     return false;
 
-                // Ștergem toate relațiile MenuDish
                 foreach (var menuDish in menu.MenuDishes.ToList())
                 {
                     _context.MenuDishes.Remove(menuDish);
                 }
 
-                // Ștergem meniul
                 _context.Menus.Remove(menu);
 
-                // Salvăm schimbările
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                // Logăm eroarea sau o tratăm corespunzător
-                Console.WriteLine($"Eroare la ștergerea meniului: {ex.Message}");
-                throw; // Re-aruncăm excepția pentru a fi tratată de apelant
+                throw; 
             }
+        }
+
+        public async Task<IEnumerable<Menu>> GetMenusWithoutAllergens(int[] allergenIds)
+        {
+            var menus = await _context.Menus
+                .Include(m => m.Category)
+                .Include(m => m.MenuDishes)
+                    .ThenInclude(md => md.Dish)
+                        .ThenInclude(d => d.Photos)
+                .Include(m => m.MenuDishes)
+                    .ThenInclude(md => md.Dish)
+                        .ThenInclude(d => d.DishAllergens)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var filteredMenus = menus.Where(menu =>
+                menu.MenuDishes.All(md =>
+                    md.Dish == null || !md.Dish.DishAllergens.Any(da =>
+                        allergenIds.Contains(da.AllergenId))
+                )
+            ).ToList();
+
+            foreach (var menu in filteredMenus)
+            {
+                foreach (var menuDish in menu.MenuDishes)
+                {
+                    if (menuDish.Dish != null)
+                    {
+                        var dishWithAllergens = await _context.Dishes
+                            .Include(d => d.DishAllergens)
+                                .ThenInclude(da => da.Allergen)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(d => d.DishId == menuDish.Dish.DishId);
+                        
+                        if (dishWithAllergens != null)
+                        {
+                            menuDish.Dish.DishAllergens = dishWithAllergens.DishAllergens;
+                        }
+                    }
+                }
+                
+                if (_appSettings.MenuDiscountPercent > 0)
+                {
+                    menu.DiscountPercent = _appSettings.MenuDiscountPercent;
+                }
+            }
+
+            return filteredMenus;
         }
     }
 } 

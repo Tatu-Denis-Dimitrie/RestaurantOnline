@@ -14,16 +14,13 @@ namespace RestaurantOnline.Converters
             {
                 try
                 {
-                    // Verifica daca calea este absoluta sau relativa
                     string fullPath = imagePath;
                     if (!Path.IsPathRooted(imagePath))
                     {
-                        // Calea este relativa, adauga directorul aplicatiei
                         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                         fullPath = Path.Combine(baseDir, imagePath);
                     }
 
-                    // Verifica daca fisierul exista
                     if (File.Exists(fullPath))
             {
                         var image = new BitmapImage();
@@ -36,11 +33,8 @@ namespace RestaurantOnline.Converters
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Eroare la incarcarea imaginii: {ex.Message}");
                 }
             }
-
-            // Returneaza o imagine implicita sau null
             return null;
         }
 
