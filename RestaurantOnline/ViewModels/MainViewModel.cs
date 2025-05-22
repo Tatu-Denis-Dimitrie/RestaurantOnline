@@ -32,7 +32,6 @@ namespace RestaurantOnline.ViewModels
             _allergenService = allergenService;
             _menuService = ((App)Application.Current).ServiceProvider.GetRequiredService<MenuService>();
 
-            // Activate navigation commands
             NavigateToDishesCommand = new RelayCommand(_ => NavigateToDishes());
             NavigateToUsersCommand = new RelayCommand(_ => NavigateToUsers());
             NavigateToOrdersCommand = new RelayCommand(_ => NavigateToOrders());
@@ -45,7 +44,6 @@ namespace RestaurantOnline.ViewModels
             NavigateToCartCommand = new RelayCommand(_ => NavigateToCart());
             LogoutCommand = new RelayCommand(_ => Logout());
             
-            // Load dishes page by default
             NavigateToDishes();
         }
 

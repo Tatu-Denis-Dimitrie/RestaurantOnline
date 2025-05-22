@@ -94,15 +94,5 @@
                     Command="{Binding RefreshCommand}"
                     Width="120" Height="30"/>
         </Grid>
-        
-        <!-- Indicator de încărcare -->
-        <Border Grid.Row="0" Grid.RowSpan="4" 
-                Background="#80000000" 
-                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Se încarcă..." Foreground="White" FontSize="16" Margin="0,0,0,10"/>
-                <ProgressBar IsIndeterminate="True" Width="200" Height="20"/>
-            </StackPanel>
-        </Border>
     </Grid>
 </UserControl> 

@@ -40,16 +40,16 @@
     <Compile Update="Views\DishDetailsView.xaml.cs">
       <DependentUpon>DishDetailsView.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\OrderView.xaml.cs">
+    <Compile Update="Views\AdminStuff\OrderView.xaml.cs">
       <DependentUpon>OrderView.xaml</DependentUpon>
     </Compile>
     <Compile Update="Views\DishView.xaml.cs">
       <DependentUpon>DishView.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\StockView.xaml.cs">
+    <Compile Update="Views\AdminStuff\StockView.xaml.cs">
       <DependentUpon>StockView.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\UsersView.xaml.cs">
+    <Compile Update="Views\AdminStuff\UsersView.xaml.cs">
       <DependentUpon>UsersView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>

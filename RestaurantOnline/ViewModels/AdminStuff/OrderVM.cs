@@ -26,8 +26,8 @@ namespace RestaurantOnline.ViewModels
         private string _filtruStatus;
 
         public ComenziViewModel(
-            OrderS comandaService, 
-            DishS preparatService, 
+            OrderS comandaService,
+            DishS preparatService,
             UserS utilizatorService)
         {
             _comandaService = comandaService;
@@ -35,22 +35,22 @@ namespace RestaurantOnline.ViewModels
             _utilizatorService = utilizatorService;
             _comenzi = new ObservableCollection<Order>();
             _comenziAfisate = new ObservableCollection<Order>();
-            
-            _availableStatuses = new List<string> 
-            { 
-                "inregistrata", 
-                "se_pregateste", 
-                "a plecat la client", 
+
+            _availableStatuses = new List<string>
+            {
+                "inregistrata",
+                "se_pregateste",
+                "a plecat la client",
                 "livrata",
                 "anulata"
             };
-            
+
             RefreshCommand = new RelayCommand(_ => LoadComenzi());
             DetaliiComandaCommand = new RelayCommand(_ => DetaliiComanda());
             SchimbaStatusCommand = new RelayCommand(_ => SchimbaStatusComanda(), _ => ComandaSelectata != null);
             ArataComenziActiveCommand = new RelayCommand(_ => SetArataDoarComenziActive(true));
             ArataComenziToateCommand = new RelayCommand(_ => SetArataDoarComenziActive(false));
-            
+
             _arataDoarComenziActive = false;
             LoadComenzi();
         }
@@ -120,13 +120,13 @@ namespace RestaurantOnline.ViewModels
             try
             {
                 var comenzi = await _comandaService.GetAllAsync();
-                
+
                 var comenziSortate = comenzi.OrderByDescending(c => c.OrderDate).ToList();
                 Comenzi = new ObservableCollection<Order>(comenziSortate);
-                
+
                 ActualizeazaComenziAfisate();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ErrorMessage = $"Eroare la incarcarea comenzilor: {ex.Message}";
             }
@@ -146,10 +146,10 @@ namespace RestaurantOnline.ViewModels
         {
             if (ArataDoarComenziActive)
             {
-                var comenziActive = Comenzi.Where(c => 
-                    c.Status != "livrata" && 
+                var comenziActive = Comenzi.Where(c =>
+                    c.Status != "livrata" &&
                     c.Status != "anulata").ToList();
-                
+
                 ComenziAfisate = new ObservableCollection<Order>(comenziActive);
             }
             else
@@ -161,7 +161,7 @@ namespace RestaurantOnline.ViewModels
         private void DetaliiComanda()
         {
             if (ComandaSelectata == null) return;
-            
+
             var detalii = $"ID Comandă: {ComandaSelectata.OrderId}\n" +
                           $"Data: {ComandaSelectata.OrderDate:dd/MM/yyyy HH:mm}\n" +
                           $"Estimare livrare: {ComandaSelectata.EstimatedDeliveryTime:dd/MM/yyyy HH:mm}\n" +
@@ -173,14 +173,14 @@ namespace RestaurantOnline.ViewModels
                           $"Telefon: {ComandaSelectata.User?.Phone ?? "N/A"}\n" +
                           $"Adresă livrare: {ComandaSelectata.User?.DeliveryAddress ?? "N/A"}\n\n" +
                           "Produse comandate:\n";
-            
+
             var menuGroups = ComandaSelectata.OrderDishes
                 .GroupBy(od => od.MenuId)
                 .ToList();
-            
+
             var individualProducts = menuGroups
                 .FirstOrDefault(g => g.Key == null);
-            
+
             if (individualProducts != null)
             {
                 detalii += "Produse individuale:\n";
@@ -190,11 +190,11 @@ namespace RestaurantOnline.ViewModels
                 }
                 detalii += "\n";
             }
-            
+
             var menuProducts = menuGroups
                 .Where(g => g.Key.HasValue)
                 .ToList();
-            
+
             if (menuProducts.Any())
             {
                 detalii += "Produse din meniuri:\n";
@@ -202,7 +202,7 @@ namespace RestaurantOnline.ViewModels
                 {
                     var menuId = menuGroup.Key.Value;
                     detalii += $"Meniu #{menuId}:\n";
-                    
+
                     foreach (var item in menuGroup)
                     {
                         detalii += $"- {item.Quantity} x {item.Dish?.Name ?? "Produs necunoscut"}\n";
@@ -210,29 +210,29 @@ namespace RestaurantOnline.ViewModels
                     detalii += "\n";
                 }
             }
-            
+
             MessageBox.Show(detalii, $"Detalii Comandă #{ComandaSelectata.OrderId}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private async void SchimbaStatusComanda()
         {
             if (ComandaSelectata == null || string.IsNullOrEmpty(SelectedStatus)) return;
-            
+
             var result = MessageBox.Show(
                 $"Doriți să schimbați statusul comenzii #{ComandaSelectata.OrderId} din '{ComandaSelectata.Status}' în '{SelectedStatus}'?",
                 "Confirmare schimbare status",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
-                
+
             if (result != MessageBoxResult.Yes) return;
-            
+
             IsLoading = true;
             ErrorMessage = string.Empty;
-            
+
             try
             {
                 var success = await _comandaService.ActualizeazaStareComandaAsync(ComandaSelectata.OrderId, SelectedStatus);
-                
+
                 if (success)
                 {
                     ComandaSelectata.Status = SelectedStatus;
@@ -241,8 +241,8 @@ namespace RestaurantOnline.ViewModels
                         "Status actualizat",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
-                    
-                    await Task.Delay(500); 
+
+                    await Task.Delay(500);
                     LoadComenzi();
                 }
                 else
@@ -268,4 +268,4 @@ namespace RestaurantOnline.ViewModels
             }
         }
     }
-} 
+}
