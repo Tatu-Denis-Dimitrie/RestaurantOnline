@@ -178,7 +178,7 @@ namespace RestaurantOnline.ViewModels
                     MessageBoxImage.Information);
 
                 LoadUserOrders();
-            }
+            } //test
             catch (Exception ex)
             {
                 string mesajDetaliat = $"Eroare la actualizarea stării comenzii în baza de date: {ex.Message}";
